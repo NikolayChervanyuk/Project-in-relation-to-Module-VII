@@ -8,7 +8,8 @@ namespace Fit4Life.Extentions
 {
     internal static class GInterface
     {
-        internal static string HorizontalLine(char character, int lineLenght)
+        internal static int GetHomePageHeadderRowsCount { get; private set; }
+        internal static string DrawHorizontalLine(char character, int lineLenght)
         {
             char[] charactersLine = new char[lineLenght];
             for (int i = 0; i < lineLenght; i++)
@@ -16,6 +17,16 @@ namespace Fit4Life.Extentions
                 charactersLine[i] = character;
             }
             return string.Concat(charactersLine);
+        }
+
+        internal static void PrintMainPageHeadder()
+        {
+            Console.WriteLine(DrawHorizontalLine('-', 23));
+            Console.WriteLine($"{ShiftText(5)}<|Fit 4 Life|>"); //14 spaces to center
+            Console.WriteLine("Welcome to our shop!");
+            Console.WriteLine(DrawHorizontalLine('-', 23));
+            GetHomePageHeadderRowsCount = 5;
+            GenerateOptionsList(printOptions: true);
         }
 
         internal static string ShiftText(int positions)
@@ -32,14 +43,14 @@ namespace Fit4Life.Extentions
         /// Generates the options you can select from on the main page
         /// </summary>
         /// <param name="cursorOffset"></param>
-        internal static void GenerateOptionsList(int optionsCount = 5, bool printOptions = false)
+        private static void GenerateOptionsList(int optionsCount = 5, bool printOptions = false)
         {
             if (optionsList == null)
             {
                 optionsList = new string[optionsCount];
                 for (int i = 0; i < optionsList.Count(); i++)
                 {
-                    optionsList[i] = $"{i+1}.";
+                    optionsList[i] = $"{i + 1}.";
                 }
                 //ето тук ръчно въвеждаме какво да се показва на менюто.
                 //Общо 5 избора съм направил (виж сигнатурата)
@@ -63,7 +74,7 @@ namespace Fit4Life.Extentions
         {
             Console.ResetColor();
             Console.SetCursorPosition(0, currentLineSelected);
-            Console.Write("\r" + optionsList[optionIndex] + new string(' ', 20));
+            Console.Write("\r" + optionsList[optionIndex] + new string(' ', 50));
         }
 
         internal static void SelectCurrentOptionAt(int currentLineSelected, int optionIndex)

@@ -8,20 +8,21 @@ namespace Fit4Life.Views
 {
     internal class Display
     {
-        internal void InitializeView()
+        internal int optionIndex = -1;
+        internal void InitializeHomeView()
         {
-            int headderRows = 4;
-            Console.WriteLine(GInterface.HorizontalLine('-', 23));
-            Console.WriteLine($"{GInterface.ShiftText(5)}<|Fit 4 Life|>"); //14 spaces to center
-            Console.WriteLine("Welcome to our shop!");
-            Console.WriteLine(GInterface.HorizontalLine('-', 23));
-            GInterface.GenerateOptionsList(printOptions: true);
-
-            int currLineSelected = headderRows; //when = to headderRows, 1st option is selected
+            
+            double shoppingCartTotal = 0;
+            Console.WriteLine($"Total :{shoppingCartTotal}");
+            GInterface.PrintMainPageHeadder();
+            optionIndex = SelectOption();
+        }
+        internal int SelectOption()
+        {
+            //the following code enables option selection with arrow keys and enter
+            int currLineSelected = GInterface.GetHomePageHeadderRowsCount; //when = to HeadderRowsCount, 1st option is selected
             int optIndex = 0;
             int optionsCount = GInterface.optionsList.Length;
-
-            //the following code enables option selection with arrow keys and enter
             GInterface.SelectCurrentOptionAt(currLineSelected, optIndex);
             ConsoleKeyInfo key;
             int pickedOptionInd = -1;
@@ -37,16 +38,14 @@ namespace Fit4Life.Views
                             optIndex = (optIndex % (optionsCount - 1)) - 1;
                         }
                         GInterface.SelectCurrentOptionAt(++currLineSelected, ++optIndex);
-
-
                         break;
 
                     case ConsoleKey.UpArrow:
                         GInterface.DeselectCurrentOptionAt(currLineSelected, optIndex);
                         if (optIndex - 1 < 0)
                         {
-                            currLineSelected += (optionsCount - 1) + 1;
-                            optIndex += (optionsCount - 1) + 1;
+                            currLineSelected += optionsCount ;
+                            optIndex += optionsCount ;
                         }
                         GInterface.SelectCurrentOptionAt(--currLineSelected, --optIndex);
                         break;
@@ -57,7 +56,7 @@ namespace Fit4Life.Views
                         break;
                 }
             }
-
+            return pickedOptionInd;
         }
     }
 }

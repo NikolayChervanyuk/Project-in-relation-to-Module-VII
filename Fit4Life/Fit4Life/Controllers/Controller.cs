@@ -14,7 +14,8 @@ namespace Fit4Life.Controllers
         internal void Start()
         {
             display = new Display();
-            display.InitializeView();
+            display.InitializeHomeView();
+            
         }
     }
 }
