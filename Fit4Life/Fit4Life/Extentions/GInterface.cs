@@ -26,7 +26,6 @@ namespace Fit4Life.Extentions
             Console.WriteLine("Welcome to our shop!");
             Console.WriteLine(DrawHorizontalLine('-', 23));
             GetHomePageHeadderRowsCount = 5;
-            GenerateOptionsList(printOptions: true);
         }
 
         internal static string ShiftText(int positions)
@@ -38,51 +37,62 @@ namespace Fit4Life.Extentions
             }
             return string.Concat(shiftingChars);
         }
-        internal static string[] optionsList;
+
+        internal static List<string> optionsList;
+
         /// <summary>
-        /// Generates the options you can select from on the main page
+        /// Generates the options you can select from on the main page. If printOptions is true, then we print list of options
         /// </summary>
-        /// <param name="cursorOffset"></param>
-        private static void GenerateOptionsList(int optionsCount = 5, bool printOptions = false)
+        /// <param name="optionsCount"></param>
+        /// <param name="printOptions"></param>
+        internal static void GenerateMainPageOptionsList(bool printOptions = false)
         {
             if (optionsList == null)
             {
-                optionsList = new string[optionsCount];
-                for (int i = 0; i < optionsList.Count(); i++)
+                optionsList = new List<string>();
+                //Here we add the options which would be displayed in our main page.
+                //! Separate each object with (;)
+                string options = "Supplements;Drinks;Equipment;Fitness world news;About";
+                int separatorInd = 0;
+                int ind = -1;
+                while (++ind < options.Length)
                 {
-                    optionsList[i] = $"{i + 1}.";
+                    if (options[ind] == ';')
+                    {
+                        optionsList.Add(options.Substring(separatorInd, ind - separatorInd));
+                        separatorInd = ind+1;
+                    }
                 }
-                //ето тук ръчно въвеждаме какво да се показва на менюто.
-                //Общо 5 избора съм направил (виж сигнатурата)
-                optionsList[0] += "Supplements";
-                optionsList[1] += "Drinks";
-                optionsList[2] += "Equipment";
-                optionsList[3] += "Fitness world news";
-                optionsList[4] += "About";
+                optionsList.Add(options.Substring(separatorInd, ind - separatorInd));
             }
-            //print options if printOptions = true;
+            //Print options if printOptions = true;
             if (printOptions)
             {
-                foreach (string option in optionsList)
+                for (int i = 0; i < optionsList.Count(); i++)
                 {
-                    Console.WriteLine(option);
+                    Console.WriteLine($"{i + 1}.");
+                }
+                for (int i = 0; i < optionsList.Count(); i++)
+                {
+                    Console.SetCursorPosition(2, GetHomePageHeadderRowsCount + i);
+                    Console.Write(optionsList[i]);
                 }
             }
         }
 
-        internal static void DeselectCurrentOptionAt(int currentLineSelected, int optionIndex)
+        internal static void DeselectCurrentOptionAt(int optionIndex)
         {
             Console.ResetColor();
-            Console.SetCursorPosition(0, currentLineSelected);
-            Console.Write("\r" + optionsList[optionIndex] + new string(' ', 50));
+            Console.SetCursorPosition(0, GetHomePageHeadderRowsCount + optionIndex);
+            Console.Write($"{optionIndex + 1}." + optionsList.ElementAt(optionIndex) + new string(' ', Console.BufferWidth/2));
         }
 
-        internal static void SelectCurrentOptionAt(int currentLineSelected, int optionIndex)
+        internal static void SelectCurrentOptionAt(int optionIndex)
         {
             Console.BackgroundColor = ConsoleColor.White;
             Console.ForegroundColor = ConsoleColor.Black;
-            Console.SetCursorPosition(0, currentLineSelected);
-            Console.Write("\r" + optionsList[optionIndex] + "<");
+            Console.SetCursorPosition(0, GetHomePageHeadderRowsCount + optionIndex);
+            Console.Write($"{optionIndex + 1}." + optionsList.ElementAt(optionIndex) + "<");
             Console.ResetColor();
         }
     }
