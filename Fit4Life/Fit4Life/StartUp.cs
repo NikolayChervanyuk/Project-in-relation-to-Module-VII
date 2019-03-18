@@ -1,9 +1,11 @@
 ﻿using Fit4Life.Controllers;
+using Fit4Life.Extentions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Fit4Life
 {
@@ -13,7 +15,7 @@ namespace Fit4Life
         {
             var controller = new Controller();
             //initiating the program
-            controller.Start();
+            controller.Start();    
         }
     }
 }
