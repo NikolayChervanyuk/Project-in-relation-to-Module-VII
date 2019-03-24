@@ -1,5 +1,5 @@
-﻿using Fit4Life.Controllers;
-using Fit4Life.Extentions;
+﻿using Fit4Life.Extentions;
+using Fit4Life.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +13,9 @@ namespace Fit4Life
     {
         static void Main(string[] args)
         {
-            var controller = new Controller();
             //initiating the program
-            controller.Start();    
+            var display = new Display();
+
         }
     }
 }

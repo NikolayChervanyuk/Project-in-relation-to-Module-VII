@@ -14,11 +14,11 @@ namespace Fit4Life.Controllers
     {
         private ShopContext shopContext { get; set; }
 
-        List<Supplement> ShowAllSupplements()
+        public object GetAllBasedOnCategory(int categoryIndex)
         {
             using(shopContext = new ShopContext())
             {
-                return shopContext.Supplements.ToList();
+                return shopContext.GetCategoryByIndex(categoryIndex);
             }
         }
 
@@ -26,7 +26,7 @@ namespace Fit4Life.Controllers
         {
             using(shopContext = new ShopContext())
             {
-                Supplement supplement = shopContext.Supplements.Find(id);
+                Supplements supplement = shopContext.Supplements.Find(id);
                 supplement.Quantity -= quantity;
 
                // if (shopContext.Cart.Contains() cant contain anything 

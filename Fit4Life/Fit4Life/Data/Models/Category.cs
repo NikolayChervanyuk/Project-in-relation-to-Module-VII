@@ -11,11 +11,6 @@ namespace Fit4Life.Data.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public virtual List<Supplement> Supplements{ get; set; }
-
-        public Category()
-        {
-            Supplements = new List<Supplement>();
-        }
+        //public virtual List<Supplement> Supplements{ get; set; }
     }
 }

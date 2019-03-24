@@ -12,12 +12,28 @@ namespace Fit4Life.Data
     class ShopContext : DbContext
     {
         public ShopContext()
-            :base("name = ShopContext")
-        {
+            :base("name = ShopContext") { }
 
-        }
         public DbSet<Category> Categories { get; set; }
-        public DbSet<Supplement> Supplements { get; set; }
+        public DbSet<Supplements> Supplements { get; set; }
+        public DbSet<Equipment> Equipment { get; set; }
         public DbSet<Cart> Cart { get; set; }
+
+        public object GetCategoryByIndex(int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    return Supplements.ToList();
+                case 1:
+                    break;
+                case 2:
+                    return Equipment.ToList();
+                default:
+                    break;
+            }
+            return null;
+        }
+
     }
 }

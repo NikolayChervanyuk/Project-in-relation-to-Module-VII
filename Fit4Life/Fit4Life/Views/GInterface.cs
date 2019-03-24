@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Fit4Life.Controllers;
+using Fit4Life.Data;
+using Fit4Life.Data.Models;
+using Fit4Life.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +15,12 @@ namespace Fit4Life.Extentions
         private static int TopOffset;
         private static int LeftOffset;
         internal static List<string> OptionsList { get; set; }
+        //internal static List<Type> ProductsList { get; set; }
         internal static List<Type> ShoppingCartList { get; set; }
+
+        internal static List<Supplements> SupplementsList { get; set; }
+        //internal static List<Drink> SupplementsList { get; set; }
+        internal static List<Equipment> EquipmentsList { get; set; }
 
         //Resolution ratios respectively width to height, height to width
         private static readonly int screenWidth = Screen.PrimaryScreen.Bounds.Width;
@@ -25,7 +34,7 @@ namespace Fit4Life.Extentions
                                   (int)(windowHeight * heightCoeff));
 
             Console.SetBufferSize((int)(windowWidth * widthCoeff),
-                                  (int)(windowHeight * heightCoeff));
+                                  (int)(windowHeight * heightCoeff * 10));
         }
 
         internal static void PrintMainPageHeadder()
@@ -46,6 +55,8 @@ namespace Fit4Life.Extentions
             GInterface.ShiftText(45);
             Console.WriteLine(OptionsList[optionIndex]);
             Console.WriteLine(HorizontalLine('-', 100));
+            TopOffset = Console.CursorTop;
+            LeftOffset = Console.CursorLeft;
         }
 
         internal static void SelectCurrentOptionAt(int optionIndex)
@@ -61,6 +72,21 @@ namespace Fit4Life.Extentions
             Console.ResetColor();
             Console.SetCursorPosition(0, TopOffset + optionIndex);
             Console.Write($"{optionIndex + 1}." + OptionsList.ElementAt(optionIndex) + new string(' ', Console.BufferWidth / 2));
+        }
+
+        internal static void SelectCurrentProductAt(int productIndex, int categoryIndex)
+        {
+            Console.BackgroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.SetCursorPosition(0, TopOffset + productIndex);
+            PrintProduct(productIndex, categoryIndex);
+            Console.ResetColor();
+        }
+        internal static void DeselectCurrentProductAt(int productIndex, int categoryIndex)
+        {
+            Console.ResetColor();
+            Console.SetCursorPosition(0, TopOffset + productIndex);
+            PrintProduct(productIndex, categoryIndex);
         }
 
         /// <summary>
@@ -100,6 +126,110 @@ namespace Fit4Life.Extentions
             return OptionsList;
         }
 
+        internal static int GetListLenghtByCategory(int categoryIndex)
+        {
+            switch (categoryIndex)
+            {
+                case 0:
+                    return SupplementsList.Count;
+                case 1:
+                    //return DrinksList.Count;
+                case 2:
+                    return EquipmentsList.Count;
+                default:
+                    return 0;
+            }
+        }
+
+        internal static dynamic GetCategorizedList(int optionIndex, Controller controller)
+        {
+            dynamic productsList_Obj = controller.GetAllBasedOnCategory(optionIndex);
+            return ReturnDefinedTypeList(optionIndex, productsList_Obj);
+        }
+
+        internal static void PrintProductsFormated(int categoryIndex)
+        {
+            Console.SetCursorPosition(0, TopOffset);
+            switch (categoryIndex)
+            {
+                case 0://supplements
+                    for (int i = 0; i < SupplementsList.Count; i++)
+                    {
+                        PrintProduct(i, categoryIndex);
+                    }
+                    break;
+                case 1://drinks
+                    /*for (int i = 0; i < DrinksList.Count; i++)
+                    {
+                        PrintProduct(i, categoryIndex);
+                    }*/
+                    break;
+                case 2://equipments
+                    for (int i = 0; i < EquipmentsList.Count; i++)
+                    {
+                        PrintProduct(i, categoryIndex);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private static void PrintProduct(int productIndex, int categoryIndex)
+        {
+            int offset = 0;
+            switch (categoryIndex)
+            {
+                case 0:
+                    Console.Write($" {productIndex + 1}. {SupplementsList[productIndex].Name}");
+                    Console.CursorLeft = offset += 25;
+                    Console.Write($"{SupplementsList[productIndex].Brand}");
+                    Console.CursorLeft = offset += 15;
+                    Console.Write($"{SupplementsList[productIndex].Weight}");
+                    Console.CursorLeft = offset += 10;
+                    Console.Write($"{SupplementsList[productIndex].Price}");
+                    Console.CursorLeft = offset += 10;
+                    Console.WriteLine($"{SupplementsList[productIndex].Quantity}");
+                    break;
+                case 1:
+
+                    break;
+                case 2:
+                    Console.Write($" {productIndex + 1}. {EquipmentsList[productIndex].Name}");
+                    Console.CursorLeft = offset += 35;
+                    Console.Write($"{EquipmentsList[productIndex].Brand}");
+                    Console.CursorLeft = offset += 10;
+                    Console.WriteLine($"{EquipmentsList[productIndex].Price}");
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private static object ReturnDefinedTypeList(int optionIndex, dynamic productList_Undefined)
+        {
+            switch (optionIndex)
+            {
+                case 0:
+                    return new List<Supplements>(productList_Undefined);
+                case 1:
+                //return new List<Drinks>(productList_Undefined);
+                case 2:
+                    return new List<Equipment>(productList_Undefined);
+                default:
+                    return null;
+            }
+        }
+
+        //control print method (sholud be removed in released version)
+        private static void PrintProductsList(dynamic productsList)
+        {
+            foreach (var item in productsList)
+            {
+                Console.WriteLine($"{item.Name} {item.Brand}  {item.Price} ");
+            }
+        }
+
         internal static string HorizontalLine(char character, int lineLenght)
         {
             char[] charactersLine = new char[lineLenght];
@@ -109,7 +239,6 @@ namespace Fit4Life.Extentions
             }
             return string.Concat(charactersLine);
         }
-
         /// <param name="clearLine">If true then clears all chars beforehand</param>
         internal static void ShiftText(int positions, bool clearLine = false)
         {
