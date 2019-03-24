@@ -8,6 +8,6 @@ namespace Fit4Life.Data.Models
 {
     class Cart:Product
     {
-       
+        
     }
 }

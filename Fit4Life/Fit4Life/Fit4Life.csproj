@@ -68,6 +68,7 @@
     <Compile Include="Data\Models\Equipment.cs" />
     <Compile Include="Data\Models\Cart.cs" />
     <Compile Include="Data\Models\Category.cs" />
+    <Compile Include="Data\Models\Product.cs" />
     <Compile Include="Data\ShopContext.cs" />
     <Compile Include="Views\GInterface.cs" />
     <Compile Include="Data\Models\Supplements.cs" />
