@@ -23,43 +23,80 @@ namespace Fit4Life.Controllers
             }
         }
 
-        public void TransferFromShopToCart(int id, int quantity)
+        public void TransferFromShopToCart(int id, int quantity,int index)
         {
             using(shopContext = new ShopContext())
             {
-                Supplements supplement = shopContext.Supplements.Find(id);
-                supplement.Quantity -= quantity;
-
-                foreach (var item in shopContext.Cart)
+                switch (index)
                 {
-                    if(item.Name == supplement.Name)
-                    {
-                        item.Quantity++;
+                    case 0:
+                        Supplements supplement = shopContext.Supplements.Find(id);
+                        supplement.Quantity -= quantity;
+
+                        foreach (var item in shopContext.Cart)
+                        {
+                            if (item.Name == supplement.Name)
+                            {
+                                item.Quantity++;
+                                shopContext.SaveChanges();
+                                break;
+                            }
+                        }
+
+                        shopContext.Cart.Add(new Cart(supplement.Name, supplement.Price, quantity));
                         shopContext.SaveChanges();
                         break;
-                    }
+
+                    case 1:
+                        break;
+
+                    case 2:
+                        Equipment equipment = shopContext.Equipment.Find(id);
+                        equipment.Quantity -= quantity;
+
+                        foreach (var item in shopContext.Cart)
+                        {
+                            if (item.Name == equipment.Name)
+                            {
+                                item.Quantity++;
+                                shopContext.SaveChanges();
+                                break;
+                            }
+                        }
+
+                        shopContext.Cart.Add(new Cart(equipment.Name, equipment.Price, quantity));
+                        shopContext.SaveChanges();
+                        break;
+
+
+                    default:
+                        break;
                 }
-
-                shopContext.Cart.Add(new Cart(supplement.Name, supplement.Price, quantity));
-                shopContext.SaveChanges();
             }
         }
 
-        void AddProduct(Supplements supplement)
+        void AddProduct(Product product, int index)
         {
             using (shopContext = new ShopContext())
             {
-                shopContext.Supplements.Add(supplement);
+                switch (index)
+                {
+                    case 0:
+                        shopContext.Supplements.Add(new Supplements());
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        shopContext.Equipment.Add(new Equipment());
+                        break;
+                    default:
+                        break;
+                }
+                
             }
         }
 
-        void AddEquipment(Equipment equipment)
-        {
-            using (shopContext = new ShopContext())
-            {
-                shopContext.Equipment.Add(equipment);
-            }
-        }
+        
         /*private Display display;
         private DataManagement dataManagement;
         internal void Start()
