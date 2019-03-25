@@ -26,7 +26,7 @@ namespace Fit4Life.Views
             Console.WriteLine($"Total: {shoppingCartTotal:f2}bgn");
             GInterface.PrintMainPageHeadder();
             string optionsString = "Supplements;Drinks;Equipment;Fitness world news;About";
-            GInterface.OptionsList = GInterface.GetMainPageOptionsList(optionsString, printOptions: true);
+            ObjectSelections.OptionsList = GInterface.GetMainPageOptionsList(optionsString, printOptions: true);
             pickedOptionIndex = SelectOption();
         }
         /// <summary>
@@ -38,30 +38,30 @@ namespace Fit4Life.Views
             int pickedOptionIndex = -1;
             //the following code enables option selection with arrow keys and enter
             int optIndex = 0;
-            int optionsCount = GInterface.OptionsList.Count;
+            int optionsCount = ObjectSelections.OptionsList.Count;
             Console.CursorVisible = false;
-            GInterface.SelectCurrentOptionAt(optIndex);
+            ObjectSelections.SelectCurrentOptionAt(optIndex);
             ConsoleKeyInfo key = Console.ReadKey();
             while (key.Key != ConsoleKey.Enter)
             {
                 switch (key.Key)
                 {
                     case ConsoleKey.DownArrow:
-                        GInterface.DeselectCurrentOptionAt(optIndex);
+                        ObjectSelections.DeselectCurrentOptionAt(optIndex);
                         if (optIndex + 1 >= optionsCount)
                         {
                             optIndex = (optIndex % (optionsCount - 1)) - 1;
                         }
-                        GInterface.SelectCurrentOptionAt(++optIndex);
+                        ObjectSelections.SelectCurrentOptionAt(++optIndex);
                         break;
 
                     case ConsoleKey.UpArrow:
-                        GInterface.DeselectCurrentOptionAt(optIndex);
+                        ObjectSelections.DeselectCurrentOptionAt(optIndex);
                         if (optIndex - 1 < 0)
                         {
                             optIndex += optionsCount;
                         }
-                        GInterface.SelectCurrentOptionAt(--optIndex);
+                        ObjectSelections.SelectCurrentOptionAt(--optIndex);
                         break;
                     case ConsoleKey.Escape:
                         Console.Clear();
@@ -89,7 +89,7 @@ namespace Fit4Life.Views
                 switch (optionIndex)
                 {
                     case 0:
-                        GInterface.SupplementsList = (List<Supplements>)productsList; // may explode
+                        GInterface.SupplementsList = (List<Supplements>)productsList;
                         break;
                     case 1:
                         //GInterface.DrinksList = (List<Drink>)productsList;
@@ -130,30 +130,27 @@ namespace Fit4Life.Views
         {
             int productIndex = 0;
             int listLenght = GInterface.GetListLenghtByCategory(optionIndex);
-            GInterface.SelectCurrentProductAt(productIndex, optionIndex);
+            ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);
             var key = Console.ReadKey();
             while (!(key.Key == ConsoleKey.Escape || key.Key == ConsoleKey.Backspace))
             {
                 switch (key.Key)
                 {
                     case ConsoleKey.DownArrow:
-                        GInterface.DeselectCurrentProductAt(productIndex, optionIndex);
+                        ObjectSelections.DeselectCurrentProductAt(productIndex, optionIndex);
                         if (productIndex + 1 >= listLenght)
                         {
                             productIndex = (productIndex % (listLenght - 1)) - 1;
                         }
-                        GInterface.SelectCurrentProductAt(++productIndex, optionIndex);
+                        ObjectSelections.SelectCurrentProductAt(++productIndex, optionIndex);
                         break;
                     case ConsoleKey.UpArrow:
-                        GInterface.DeselectCurrentProductAt(productIndex, optionIndex);
+                        ObjectSelections.DeselectCurrentProductAt(productIndex, optionIndex);
                         if (productIndex - 1 < 0)
                         {
                             productIndex = listLenght;
                         }
-                        GInterface.SelectCurrentProductAt(--productIndex, optionIndex);
-                        break;
-                    case ConsoleKey.Spacebar://show description
-
+                        ObjectSelections.SelectCurrentProductAt(--productIndex, optionIndex);
                         break;
                     case ConsoleKey.Enter://add to cart
 
