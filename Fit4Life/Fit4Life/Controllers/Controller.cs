@@ -18,6 +18,7 @@ namespace Fit4Life.Controllers
         {
             using(shopContext = new ShopContext())
             {
+
                 return shopContext.GetCategoryByIndex(categoryIndex);
             }
         }
@@ -29,10 +30,34 @@ namespace Fit4Life.Controllers
                 Supplements supplement = shopContext.Supplements.Find(id);
                 supplement.Quantity -= quantity;
 
-               // if (shopContext.Cart.Contains() cant contain anything 
+                foreach (var item in shopContext.Cart)
                 {
-                    //still no idea
+                    if(item.Name == supplement.Name)
+                    {
+                        item.Quantity++;
+                        shopContext.SaveChanges();
+                        break;
+                    }
                 }
+
+                shopContext.Cart.Add(new Cart(supplement.Name, supplement.Price, quantity));
+                shopContext.SaveChanges();
+            }
+        }
+
+        void AddProduct(Supplements supplement)
+        {
+            using (shopContext = new ShopContext())
+            {
+                shopContext.Supplements.Add(supplement);
+            }
+        }
+
+        void AddEquipment(Equipment equipment)
+        {
+            using (shopContext = new ShopContext())
+            {
+                shopContext.Equipment.Add(equipment);
             }
         }
         /*private Display display;
