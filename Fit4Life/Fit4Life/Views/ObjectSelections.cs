@@ -37,7 +37,7 @@ namespace Fit4Life.Views
             Console.SetCursorPosition(0, TopOffset + productIndex);
             Console.Write(new string(' ', 100));
             Console.CursorLeft = 0;
-            PrintProduct(productIndex, categoryIndex);
+            PrintProductByIndex(productIndex, categoryIndex);
             Console.ResetColor();
         }
         internal static void DeselectCurrentProductAt(int productIndex, int categoryIndex)
@@ -46,10 +46,10 @@ namespace Fit4Life.Views
             Console.SetCursorPosition(0, TopOffset + productIndex);
             Console.Write(new string(' ', 100));
             Console.CursorLeft = 0;
-            PrintProduct(productIndex, categoryIndex);
+            PrintProductByIndex(productIndex, categoryIndex);
         }
 
-        internal static void PrintProduct(int productIndex, int categoryIndex)
+        internal static void PrintProductByIndex(int productIndex, int categoryIndex)
         {
             int offset = 0;
             switch (categoryIndex)
@@ -74,6 +74,23 @@ namespace Fit4Life.Views
                     Console.Write($"{GInterface.EquipmentsList[productIndex].Brand}");
                     Console.CursorLeft = offset += 20;
                     Console.WriteLine($"{GInterface.EquipmentsList[productIndex].Price}");
+                    break;
+                default:
+                    break;
+            }
+        }
+        internal static void PrintProduct(object product, int categoryIndex)
+        {
+            switch (categoryIndex)
+            {
+                case 0:
+                    Supplements supplement = (Supplements)product;
+                    break;
+                case 1:
+                    //Drink drink = (Drink)product;
+                    break;
+                case 2:
+                    Equipment equipment = (Equipment)product;
                     break;
                 default:
                     break;

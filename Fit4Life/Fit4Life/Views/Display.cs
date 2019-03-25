@@ -136,7 +136,7 @@ namespace Fit4Life.Views
             {
                 switch (key.Key)
                 {
-                    case ConsoleKey.DownArrow:
+                    case ConsoleKey.DownArrow://select next product
                         ObjectSelections.DeselectCurrentProductAt(productIndex, optionIndex);
                         if (productIndex + 1 >= listLenght)
                         {
@@ -144,7 +144,7 @@ namespace Fit4Life.Views
                         }
                         ObjectSelections.SelectCurrentProductAt(++productIndex, optionIndex);
                         break;
-                    case ConsoleKey.UpArrow:
+                    case ConsoleKey.UpArrow://select previous product
                         ObjectSelections.DeselectCurrentProductAt(productIndex, optionIndex);
                         if (productIndex - 1 < 0)
                         {
@@ -153,10 +153,33 @@ namespace Fit4Life.Views
                         ObjectSelections.SelectCurrentProductAt(--productIndex, optionIndex);
                         break;
                     case ConsoleKey.Enter://add to cart
-
+                        GInterface.ShoppingCartList.Add(
+                            GInterface.GetCategorizedList(optionIndex, controller)[productIndex]);
+                        Console.WriteLine();
                         break;
                     case ConsoleKey.Tab://show/hide cart
-
+                        Console.Clear();
+                        foreach (object productInCart in GInterface.ShoppingCartList)
+                        {
+                            switch (productInCart.GetType().Name.ToString())
+                            {
+                                case "Supplements":
+                                    ObjectSelections.PrintProduct(productInCart, 0);
+                                    break;
+                                case "Drinks":
+                                    //ObjectSelections.PrintProduct(productInCart, 1);
+                                    break;
+                                case "Equipment":
+                                    ObjectSelections.PrintProduct(productInCart, 2);
+                                    break;
+                            }
+                        }
+                        if (key.Key == ConsoleKey.Tab)
+                        {
+                            GInterface.PrintProductsPageHeadder(shoppingCartTotal, optionIndex);
+                            GInterface.PrintProductsFormated(optionIndex);
+                            ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);
+                        }
                         break;
                 }
                 key = Console.ReadKey();

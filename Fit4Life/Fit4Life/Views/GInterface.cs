@@ -15,7 +15,7 @@ namespace Fit4Life.Extentions
     {
         
         //internal static List<Type> ProductsList { get; set; }
-        internal static List<Type> ShoppingCartList { get; set; }
+        internal static List<object> ShoppingCartList { get; set; }
 
         internal static List<Supplements> SupplementsList { get; set; }
         //internal static List<Drink> SupplementsList { get; set; }
