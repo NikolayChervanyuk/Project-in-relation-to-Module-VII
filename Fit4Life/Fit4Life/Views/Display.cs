@@ -153,33 +153,59 @@ namespace Fit4Life.Views
                         ObjectSelections.SelectCurrentProductAt(--productIndex, optionIndex);
                         break;
                     case ConsoleKey.Enter://add to cart
-                        GInterface.ShoppingCartList.Add(
-                            GInterface.GetCategorizedList(optionIndex, controller)[productIndex]);
+                        dynamic product = GInterface.GetCategorizedList(optionIndex, controller)[productIndex];
+                        if (GInterface.ShoppingCartList.Contains((object)product))
+                        {
+                            GInterface.ShoppingCartProductCounter[
+                                GInterface.ShoppingCartProductCounter.Where(p => p.Equals((object)product)).GetEnumerator().Current]++;
+                        }
+                        else
+                        {
+                            GInterface.ShoppingCartProductCounter.Add(1);
+                        }
+                        GInterface.ShoppingCartList.Add(product);
                         Console.WriteLine();
                         break;
                     case ConsoleKey.Tab://show/hide cart
                         Console.Clear();
-                        foreach (object productInCart in GInterface.ShoppingCartList)
+                        Console.WriteLine("Shopping cart:");
+                        if (GInterface.ShoppingCartList.Count > 0)
                         {
-                            switch (productInCart.GetType().Name.ToString())
+                            int iterator = 0;
+                            foreach (object productInCart in GInterface.ShoppingCartList)
                             {
-                                case "Supplements":
-                                    ObjectSelections.PrintProduct(productInCart, 0);
-                                    break;
-                                case "Drinks":
-                                    //ObjectSelections.PrintProduct(productInCart, 1);
-                                    break;
-                                case "Equipment":
-                                    ObjectSelections.PrintProduct(productInCart, 2);
-                                    break;
+                                switch (productInCart.GetType().Name.ToString())
+                                {
+                                    case "Supplements":
+                                        ObjectSelections.PrintProduct(productInCart, 0, true);
+                                        Console.CursorTop--;
+                                        Console.CursorLeft = 99;
+                                        Console.WriteLine($"x{GInterface.ShoppingCartProductCounter[iterator++]}");
+                                        break;
+                                    case "Drinks":
+                                        //ObjectSelections.PrintProduct(productInCart, 1, true);
+                                        break;
+                                    case "Equipment":
+                                        ObjectSelections.PrintProduct(productInCart, 2, true);
+                                        break;
+                                }
                             }
+
                         }
-                        if (key.Key == ConsoleKey.Tab)
+                        else
                         {
-                            GInterface.PrintProductsPageHeadder(shoppingCartTotal, optionIndex);
-                            GInterface.PrintProductsFormated(optionIndex);
-                            ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);
+                            Console.WriteLine("Your shopping cart is empty :/");
                         }
+                        do
+                        {
+                            Console.CursorLeft = 0;
+                            Console.Write(' ');
+                            key = Console.ReadKey();
+                        } while (key.Key != ConsoleKey.Tab && key.Key != ConsoleKey.Escape);
+                        Console.Clear();
+                        GInterface.PrintProductsPageHeadder(shoppingCartTotal, optionIndex);
+                        GInterface.PrintProductsFormated(optionIndex);
+                        ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);
                         break;
                 }
                 key = Console.ReadKey();
@@ -190,6 +216,8 @@ namespace Fit4Life.Views
 
         public Display()
         {
+            GInterface.ShoppingCartList = new List<object>();
+            GInterface.ShoppingCartProductCounter = new List<int>();
             OpenHomeView();
             do
             {

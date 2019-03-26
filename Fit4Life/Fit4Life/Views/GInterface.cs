@@ -16,6 +16,7 @@ namespace Fit4Life.Extentions
         
         //internal static List<Type> ProductsList { get; set; }
         internal static List<object> ShoppingCartList { get; set; }
+        internal static List<int> ShoppingCartProductCounter { get; set; }
 
         internal static List<Supplements> SupplementsList { get; set; }
         //internal static List<Drink> SupplementsList { get; set; }
@@ -139,26 +140,25 @@ namespace Fit4Life.Extentions
                 case 0://supplements
                     for (int i = 0; i < SupplementsList.Count; i++)
                     {
-                        ObjectSelections.PrintProduct(i, categoryIndex);
+                        ObjectSelections.PrintProductByIndex(i, categoryIndex);
                     }
                     break;
                 case 1://drinks
                     /*for (int i = 0; i < DrinksList.Count; i++)
                     {
-                        PrintProduct(i, categoryIndex);
+                        PrintProductByIndex(i, categoryIndex);
                     }*/
                     break;
                 case 2://equipments
                     for (int i = 0; i < EquipmentsList.Count; i++)
                     {
-                        ObjectSelections.PrintProduct(i, categoryIndex);
+                        ObjectSelections.PrintProductByIndex(i, categoryIndex);
                     }
                     break;
                 default:
                     break;
             }
         }
-        //control print method (sholud be removed in released version)
 
         internal static string HorizontalLine(char character, int lineLenght)
         {

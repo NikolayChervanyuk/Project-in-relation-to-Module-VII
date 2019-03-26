@@ -49,52 +49,75 @@ namespace Fit4Life.Views
             PrintProductByIndex(productIndex, categoryIndex);
         }
 
-        internal static void PrintProductByIndex(int productIndex, int categoryIndex)
+        internal static void PrintProductByIndex(int productIndex, int categoryIndex, bool printForCart = false)
         {
-            int offset = 0;
+            Console.Write($" {productIndex + 1}.");
             switch (categoryIndex)
             {
                 case 0:
-                    Console.Write($" {productIndex + 1}. {GInterface.SupplementsList[productIndex].Name}");
-                    Console.CursorLeft = offset += 35;
-                    Console.Write($"{GInterface.SupplementsList[productIndex].Brand}");
-                    Console.CursorLeft = offset += 20;
-                    Console.Write($"{GInterface.SupplementsList[productIndex].Weight}");
-                    Console.CursorLeft = offset += 28;
-                    Console.Write($"{GInterface.SupplementsList[productIndex].Price}");
-                    Console.CursorLeft = offset += 10;
-                    Console.WriteLine($"{GInterface.SupplementsList[productIndex].Quantity}");
+                    PrintSupplement(GInterface.SupplementsList[productIndex]);
                     break;
                 case 1:
 
                     break;
                 case 2:
-                    Console.Write($" {productIndex + 1}. {GInterface.EquipmentsList[productIndex].Name}");
-                    Console.CursorLeft = offset += 35;
-                    Console.Write($"{GInterface.EquipmentsList[productIndex].Brand}");
-                    Console.CursorLeft = offset += 20;
-                    Console.WriteLine($"{GInterface.EquipmentsList[productIndex].Price}");
-                    break;
-                default:
+                    PrintEquipment(GInterface.EquipmentsList[productIndex]);
                     break;
             }
         }
-        internal static void PrintProduct(object product, int categoryIndex)
+        internal static void PrintProduct(object product, int categoryIndex, bool printForCart = false)
         {
             switch (categoryIndex)
             {
                 case 0:
                     Supplements supplement = (Supplements)product;
+                    PrintSupplement(supplement, printForCart);
                     break;
                 case 1:
                     //Drink drink = (Drink)product;
+                    //PrintDrink(drink, printForCart);
                     break;
                 case 2:
                     Equipment equipment = (Equipment)product;
-                    break;
-                default:
+                    PrintEquipment(equipment, printForCart);
                     break;
             }
         }
+        internal static void PrintSupplement(Supplements supplement, bool printForCart = false)
+        {
+            int offset = 0;
+            Console.Write($" {supplement.Name}");
+            Console.CursorLeft = offset += 35;
+            Console.Write($"{supplement.Brand}");
+            Console.CursorLeft = offset += 20;
+            Console.Write($"{supplement.Weight}");
+            Console.CursorLeft = offset += 26;
+            Console.Write($"{supplement.Price:#.00}bgn");
+            Console.CursorLeft = offset += 12;
+            if (!printForCart)
+            {
+                Console.Write($"Q:{supplement.Quantity}");
+            }
+            Console.WriteLine();
+        }
+        internal static void PrintEquipment(Equipment equipment, bool printForCart = false)
+        {
+            int offset = 0;
+            Console.Write($" {equipment.Name}");
+            Console.CursorLeft = offset += 35;
+            Console.Write($"{equipment.Brand}");
+            Console.CursorLeft = offset += 23;
+            Console.Write($"{equipment.Price:#.00}bgn");
+            Console.CursorLeft = offset += 20;
+            if (!printForCart)
+            {
+                Console.Write($"Q:{equipment.Quantity}");
+            }
+            Console.WriteLine();
+        }
+        /*internal static void PrintDrink(Drink drink)
+        {
+         
+        }*/
     }
 }
