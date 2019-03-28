@@ -61,11 +61,11 @@ namespace Fit4Life.Extentions
         }
 
         /// <summary>
-        /// Generates the categories to choose from.
+        /// Generates list of type string by providing a string. Each word, separated by semicolon gets added to the list
         /// </summary>
         /// <param name="optionsString">Separate each option with semicolon(;)</param>
         /// <param name="printOptions">If set true, prints the list</param>
-        internal static List<string> GetMainPageOptionsList(string optionsString, bool printOptions = false)
+        internal static List<string> GetStringListByString(string optionsString, bool printOptions = false)
         {
             var OptionsList = ObjectSelections.OptionsList;
             if (OptionsList == null)
@@ -305,12 +305,15 @@ namespace Fit4Life.Extentions
                         case "Supplements":
 
                             ObjectSelections.PrintProduct(productInCart, 0, true);
+                            Console.WriteLine();
                             break;
                         case "Drinks":
                             //ObjectSelections.PrintProduct(productInCart, 1, true);
+                            //Console.WriteLine();
                             break;
                         case "Equipment":
                             ObjectSelections.PrintProduct(productInCart, 2, true);
+                            Console.WriteLine();
                             break;
                     }
                 }

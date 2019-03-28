@@ -13,7 +13,7 @@ namespace Fit4Life.Views
     internal class Display
     {
         Controller controller = new Controller();
-        internal static int pickedOptionIndex;
+        internal static int pickedOptionIndex = -1;
         internal static decimal shoppingCartTotal = 0;
         /// <summary>
         /// Initializes main page headder and sets optionIndex 
@@ -26,21 +26,21 @@ namespace Fit4Life.Views
             Console.WriteLine($"Total: {shoppingCartTotal:f2}bgn");
             GInterface.PrintMainPageHeadder();
             string optionsString = "Supplements;Drinks;Equipment;Admin login";
-            ObjectSelections.OptionsList = GInterface.GetMainPageOptionsList(optionsString, printOptions: true);
+            ObjectSelections.OptionsList = GInterface.GetStringListByString(optionsString, printOptions: true);
             pickedOptionIndex = SelectOption();
         }
         /// <summary>
         /// Returns the index option selected by the user
         /// </summary>
         /// <returns></returns>
-        private int SelectOption()
+        private int SelectOption(int optionIndex = 0)
         {
             int pickedOptionIndex = -1;
             //the following code enables option selection with arrow keys and enter
             int optIndex = 0;
             int optionsCount = ObjectSelections.OptionsList.Count;
             Console.CursorVisible = false;
-            ObjectSelections.SelectCurrentOptionAt(optIndex);
+            ObjectSelections.SelectCurrentOptionAt(optionIndex);
             ConsoleKeyInfo key = Console.ReadKey();
             while (key.Key != ConsoleKey.Enter)
             {
@@ -98,7 +98,7 @@ namespace Fit4Life.Views
                         GInterface.EquipmentsList = (List<Equipment>)productsList;
                         break;
                     case 3:
-
+                        OpenAdminView();
                         break;
                 }
                 PrintProductsBasedOnCategory(optionIndex);
@@ -109,6 +109,28 @@ namespace Fit4Life.Views
                 throw new IndexOutOfRangeException("No option was chosen");
             }
         }
+
+        private void OpenAdminView()
+        {
+            AdminPanel admin = new AdminPanel();
+            Console.Clear();
+            if (admin.IsAccessGained())
+            {
+                Console.Clear();
+                Console.WriteLine("+" + GInterface.HorizontalLine('-', 17) + "+");
+                Console.WriteLine("|-<Welcome admin>-|");
+                Console.WriteLine("+" + GInterface.HorizontalLine('~', 17) + "+");
+                //System.Threading.Thread.Sleep(1000);
+                admin.SelectAction();
+            }
+            else
+            {
+                OpenHomeView();
+                return;
+            }
+        }
+
+       
 
         private void PrintProductsBasedOnCategory(int optionIndex)
         {
@@ -241,15 +263,30 @@ namespace Fit4Life.Views
             OpenHomeView();
         }
 
+
+        private void ManageViews()
+        {
+            if (pickedOptionIndex == -1)
+            {
+                OpenHomeView();
+            }
+            do
+            {
+                if (pickedOptionIndex == 3)
+                {
+                    OpenAdminView();
+                }
+                else
+                {
+                    OpenProductsView(pickedOptionIndex);
+                }
+            } while (true);
+        }
         public Display()
         {
             GInterface.ShoppingCartList = new List<object>();
             GInterface.ShoppingCartProductCounter = new List<int>();
-            OpenHomeView();
-            do
-            {
-                OpenProductsView(pickedOptionIndex);
-            } while (true);
+            ManageViews();
         }
     }
 }
