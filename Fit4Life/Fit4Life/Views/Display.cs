@@ -14,7 +14,7 @@ namespace Fit4Life.Views
     {
         Controller controller = new Controller();
         internal static int pickedOptionIndex;
-        internal static double shoppingCartTotal = 0;
+        internal static decimal shoppingCartTotal = 0;
         /// <summary>
         /// Initializes main page headder and sets optionIndex 
         /// to the option the user has selected
@@ -25,7 +25,7 @@ namespace Fit4Life.Views
             GInterface.SetWindowSize(50, 60);
             Console.WriteLine($"Total: {shoppingCartTotal:f2}bgn");
             GInterface.PrintMainPageHeadder();
-            string optionsString = "Supplements;Drinks;Equipment;Fitness world news;About";
+            string optionsString = "Supplements;Drinks;Equipment;Admin login";
             ObjectSelections.OptionsList = GInterface.GetMainPageOptionsList(optionsString, printOptions: true);
             pickedOptionIndex = SelectOption();
         }
@@ -97,7 +97,8 @@ namespace Fit4Life.Views
                     case 2:
                         GInterface.EquipmentsList = (List<Equipment>)productsList;
                         break;
-                    default:
+                    case 3:
+
                         break;
                 }
                 PrintProductsBasedOnCategory(optionIndex);
@@ -153,49 +154,74 @@ namespace Fit4Life.Views
                         ObjectSelections.SelectCurrentProductAt(--productIndex, optionIndex);
                         break;
                     case ConsoleKey.Enter://add to cart
-                        dynamic product = GInterface.GetCategorizedList(optionIndex, controller)[productIndex];
-                        if (GInterface.ShoppingCartList.Contains((object)product))
+                        bool isOutOfStock = false;
+                        dynamic categorizedList = GInterface.GetCategorizedList(optionIndex, controller);
+                        string productType = categorizedList[productIndex].GetType().Name.ToString();
+                        object currentProduct = categorizedList[productIndex];
+                        //int quantity = GInterface.ShoppingCartProductCounter[GInterface.IndexOfProductInCart(currentProduct, optionIndex)];
+                        switch (currentProduct.GetType().Name.ToString())
                         {
-                            GInterface.ShoppingCartProductCounter[
-                                GInterface.ShoppingCartProductCounter.Where(p => p.Equals((object)product)).GetEnumerator().Current]++;
+                            case "Supplements":
+                                Supplements supplement = (Supplements)currentProduct;
+                                if (supplement.Quantity <= 0)
+                                {
+                                    isOutOfStock = true;
+                                    GInterface.ShowOutOfStockMsg(productIndex);
+                                    Console.CursorLeft = 0;
+                                    ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);
+                                }
+                                else//add to cart and update database
+                                {
+                                    controller.DecreaseQuantityOf(currentProduct, 1);
+                                    GInterface.SupplementsList = (List<Supplements>)controller.GetAllBasedOnCategory(0);
+                                    ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);
+                                    shoppingCartTotal += supplement.Price;
+                                    GInterface.RefreshCartTotal(shoppingCartTotal);
+                                }
+                                break;
+                            case "Drink":
+                                /*Drink drink = (Drink)product;
+                                  
+                                 */
+                                break;
+                            case "Equipment":
+                                Equipment equipment = (Equipment)currentProduct;
+                                if (equipment.Quantity <= 0)
+                                {
+                                    isOutOfStock = true;
+                                    GInterface.ShowOutOfStockMsg(productIndex);
+                                    Console.CursorLeft = 0;
+                                    ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);
+                                }
+                                else
+                                {
+                                    controller.DecreaseQuantityOf(currentProduct);
+                                    GInterface.EquipmentsList = (List<Equipment>)controller.GetAllBasedOnCategory(2);
+                                    ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);
+                                    GInterface.RefreshCartTotal(shoppingCartTotal);
+                                    shoppingCartTotal += equipment.Price;
+                                    GInterface.RefreshCartTotal(shoppingCartTotal);
+                                }
+                                break;
                         }
-                        else
+                        if (!isOutOfStock)
                         {
-                            GInterface.ShoppingCartProductCounter.Add(1);
+                            //if product exists in cart, increase ShoppingCartProductCounter by 1;
+                            if (GInterface.ObjectListContainsProduct(GInterface.ShoppingCartList, currentProduct, productType))
+                            {
+                                GInterface.ShoppingCartProductCounter[GInterface.indexerOfProductsCounter]++;
+                            }
+                            //if product does not exist in cart, create it
+                            else
+                            {
+                                GInterface.ShoppingCartProductCounter.Add(1);
+                                GInterface.ShoppingCartList.Add(currentProduct);
+                            }
+                            Console.WriteLine();
                         }
-                        GInterface.ShoppingCartList.Add(product);
-                        Console.WriteLine();
                         break;
                     case ConsoleKey.Tab://show/hide cart
-                        Console.Clear();
-                        Console.WriteLine("Shopping cart:");
-                        if (GInterface.ShoppingCartList.Count > 0)
-                        {
-                            int iterator = 0;
-                            foreach (object productInCart in GInterface.ShoppingCartList)
-                            {
-                                switch (productInCart.GetType().Name.ToString())
-                                {
-                                    case "Supplements":
-                                        ObjectSelections.PrintProduct(productInCart, 0, true);
-                                        Console.CursorTop--;
-                                        Console.CursorLeft = 99;
-                                        Console.WriteLine($"x{GInterface.ShoppingCartProductCounter[iterator++]}");
-                                        break;
-                                    case "Drinks":
-                                        //ObjectSelections.PrintProduct(productInCart, 1, true);
-                                        break;
-                                    case "Equipment":
-                                        ObjectSelections.PrintProduct(productInCart, 2, true);
-                                        break;
-                                }
-                            }
-
-                        }
-                        else
-                        {
-                            Console.WriteLine("Your shopping cart is empty :/");
-                        }
+                        GInterface.ShowCart();
                         do
                         {
                             Console.CursorLeft = 0;
@@ -203,6 +229,7 @@ namespace Fit4Life.Views
                             key = Console.ReadKey();
                         } while (key.Key != ConsoleKey.Tab && key.Key != ConsoleKey.Escape);
                         Console.Clear();
+                        //GInterface.PrintProductsPageHeadder()
                         GInterface.PrintProductsPageHeadder(shoppingCartTotal, optionIndex);
                         GInterface.PrintProductsFormated(optionIndex);
                         ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);

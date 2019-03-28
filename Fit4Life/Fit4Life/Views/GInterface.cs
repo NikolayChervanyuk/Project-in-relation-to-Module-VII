@@ -13,7 +13,7 @@ namespace Fit4Life.Extentions
 {
     internal static class GInterface
     {
-        
+
         //internal static List<Type> ProductsList { get; set; }
         internal static List<object> ShoppingCartList { get; set; }
         internal static List<int> ShoppingCartProductCounter { get; set; }
@@ -21,6 +21,7 @@ namespace Fit4Life.Extentions
         internal static List<Supplements> SupplementsList { get; set; }
         //internal static List<Drink> SupplementsList { get; set; }
         internal static List<Equipment> EquipmentsList { get; set; }
+        internal static int indexerOfProductsCounter = 0;
 
         //Resolution ratios respectively width to height, height to width
         private static readonly int screenWidth = Screen.PrimaryScreen.Bounds.Width;
@@ -41,15 +42,15 @@ namespace Fit4Life.Extentions
         {
             Console.WriteLine(HorizontalLine('-', 23));
             ShiftText(5);
-            Console.WriteLine("<|Fit 4 Life|>"); //14 spaces to center
+            Console.WriteLine("<|Fit 4 Life|>");
             Console.WriteLine("Welcome to our shop!");
             Console.WriteLine(HorizontalLine('-', 23));
             ObjectSelections.TopOffset = Console.CursorTop;
             ObjectSelections.LeftOffset = Console.CursorLeft;
         }
-        internal static void PrintProductsPageHeadder(double shoppingCartTotal, int optionIndex)
+        internal static void PrintProductsPageHeadder(decimal shoppingCartTotal, int optionIndex)
         {
-            Console.WriteLine("Navigation:\nArrows up/down - scroll \nEnter - add to cart\t  Esc/Backspace - return to main menu");
+            Console.WriteLine("Navigation:\nArrows up/down - scroll \nEnter - add to cart\t  Esc - return to main menu");
             Console.WriteLine($"\nShopping cart: {shoppingCartTotal:f2}bgn");
             Console.WriteLine(HorizontalLine('-', 100));
             ShiftText(45);
@@ -97,6 +98,9 @@ namespace Fit4Life.Extentions
             return OptionsList;
         }
 
+        /// <summary>
+        /// Returns the lenght of list (list type must be defined by categoryIndex)
+        /// </summary>
         internal static int GetListLenghtByCategory(int categoryIndex)
         {
             switch (categoryIndex)
@@ -104,7 +108,7 @@ namespace Fit4Life.Extentions
                 case 0:
                     return SupplementsList.Count;
                 case 1:
-                    //return DrinksList.Count;
+                //return DrinksList.Count;
                 case 2:
                     return EquipmentsList.Count;
                 default:
@@ -112,6 +116,9 @@ namespace Fit4Life.Extentions
             }
         }
 
+        /// <summary>
+        /// Requests a table from the database and returns it as list of defined type depending on category
+        /// </summary>
         internal static dynamic GetCategorizedList(int optionIndex, Controller controller)
         {
             dynamic productsList_Obj = controller.GetAllBasedOnCategory(optionIndex);
@@ -132,6 +139,9 @@ namespace Fit4Life.Extentions
             }
         }
 
+        /// <summary>
+        /// Prints all products fetched from the database in a tablelike fashion
+        /// </summary>
         internal static void PrintProductsFormated(int categoryIndex)
         {
             Console.SetCursorPosition(0, ObjectSelections.TopOffset);
@@ -141,18 +151,21 @@ namespace Fit4Life.Extentions
                     for (int i = 0; i < SupplementsList.Count; i++)
                     {
                         ObjectSelections.PrintProductByIndex(i, categoryIndex);
+                        Console.WriteLine();
                     }
                     break;
                 case 1://drinks
                     /*for (int i = 0; i < DrinksList.Count; i++)
                     {
                         PrintProductByIndex(i, categoryIndex);
+                        Console.WriteLine();
                     }*/
                     break;
                 case 2://equipments
                     for (int i = 0; i < EquipmentsList.Count; i++)
                     {
                         ObjectSelections.PrintProductByIndex(i, categoryIndex);
+                        Console.WriteLine();
                     }
                     break;
                 default:
@@ -160,6 +173,182 @@ namespace Fit4Life.Extentions
             }
         }
 
+        internal static int IndexOfProductInCart(object product, int categoryIndex)
+        {
+            switch (categoryIndex)
+            {
+                case 0:
+                    Supplements supplement = (Supplements)product;
+                    for (int i = 0; i < ShoppingCartList.Count; i++)
+                    {
+                        try
+                        {
+                            if (((Supplements)ShoppingCartList[i]).Id == supplement.Id)
+                            {
+                                return i;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            continue;
+                        }
+                    }
+                    break;
+                /*case 1:
+                    Drink supplement = (Drink)product;
+                    break;*/
+                case 2:
+                    Equipment equipment = (Equipment)product;
+                    for (int i = 0; i < ShoppingCartList.Count; i++)
+                    {
+                        try
+                        {
+                            if (((Equipment)ShoppingCartList[i]).Id == equipment.Id)
+                            {
+                                return i;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            continue;
+                        }
+                    }
+                    break;
+            }
+            return int.MaxValue;
+        }
+
+        internal static void ShowOutOfStockMsg(int productIndex)
+        {
+            Console.BackgroundColor = ConsoleColor.Red;
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.CursorTop = ObjectSelections.TopOffset + productIndex;
+            Console.CursorLeft = 0;
+            ShiftText(44, true);
+            Console.Write("Out of stock");
+            Console.Write(new string(' ', 44));
+            System.Threading.Thread.Sleep(800);
+            Console.ResetColor();
+
+        }
+
+        /// <summary>
+        /// Determines wheater a list contains a product from the defined type or not
+        /// </summary>
+        internal static bool ObjectListContainsProduct(List<object> shoppingCartList, object product, string productType)
+        {
+            int index = 0;
+            bool flag = false;
+            foreach (object shoppingCartProduct in shoppingCartList)
+            {
+                //the switch statement is used only to attempt casting so to make the comparisons
+                switch (productType)
+                {
+                    case "Supplements":
+                        if (shoppingCartProduct.GetType().Name.ToString() == productType)
+                        {
+                            var supplement = (Supplements)shoppingCartProduct;
+                            var supplementForComparison = (Supplements)product;
+                            if (supplement.Id == supplementForComparison.Id)
+                            {
+                                indexerOfProductsCounter = index;
+                                flag = true;
+                            }
+
+                        }
+                        break;
+                    /*case "Drink":
+                    if (shoppingCartProduct.GetType().Name.ToString() == productType)
+                        {      
+                            var drink = (Drink)shoppingCartProduct;
+                            var drinkForComparison = (Drink)product;
+                            if (drink.Id == drinkForComparison.Id)
+                            {
+                               indexerOfProductsCounter = index;
+                               flag = true;
+                            }
+                        }
+                          break;*/
+                    case "Equipment":
+                        if (shoppingCartProduct.GetType().Name.ToString() == productType)
+                        {
+                            var equipment = (Equipment)shoppingCartProduct;
+                            var equipmentForComparison = (Equipment)product;
+                            if (equipment.Id == equipmentForComparison.Id)
+                            {
+                                indexerOfProductsCounter = index;
+                                flag = true;
+                            }
+                        }
+                        break;
+                }
+                index++;
+            }
+            return flag;
+        }
+
+        internal static void ShowCart()
+        {
+            Console.Clear();
+            Console.WriteLine("Shopping cart:");
+            if (GInterface.ShoppingCartList.Count > 0)
+            {
+                int index = 0;
+                foreach (object productInCart in ShoppingCartList)
+                {
+                    Console.CursorLeft = 99;
+                    Console.Write($"x{ShoppingCartProductCounter[index++]}");
+                    Console.CursorLeft = 0;
+                    Console.Write($" {index}.");
+                    switch (productInCart.GetType().Name.ToString())
+                    {
+                        case "Supplements":
+
+                            ObjectSelections.PrintProduct(productInCart, 0, true);
+                            break;
+                        case "Drinks":
+                            //ObjectSelections.PrintProduct(productInCart, 1, true);
+                            break;
+                        case "Equipment":
+                            ObjectSelections.PrintProduct(productInCart, 2, true);
+                            break;
+                    }
+                }
+
+            }
+            else
+            {
+                Console.WriteLine("Your shopping cart is empty :/");
+            }
+        }
+
+        internal static dynamic GetCategorizedProduct(object product, int categoryIndex)
+        {
+            switch (categoryIndex)
+            {
+                case 0:
+                    return (Supplements)product;
+                case 1:
+                //return (Drink)product;
+                case 2:
+                    return (Equipment)product;
+            }
+            return null;
+        }
+
+        internal static void RefreshCartTotal(decimal cartTotal)
+        {
+            var cursorPositionTop = Console.CursorTop;
+            var cursorPositionLeft = Console.CursorLeft;
+            Console.CursorTop = 3;
+            Console.CursorLeft = 0;
+            Console.Write($"\nShopping cart: {cartTotal:f2}bgn");
+            Console.SetCursorPosition(cursorPositionLeft, cursorPositionTop);
+            //ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);
+        }
+        /// <summary>
+        /// Returns a horizontal line
+        /// </summary>
         internal static string HorizontalLine(char character, int lineLenght)
         {
             char[] charactersLine = new char[lineLenght];

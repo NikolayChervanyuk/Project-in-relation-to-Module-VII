@@ -38,6 +38,8 @@ namespace Fit4Life.Views
             Console.Write(new string(' ', 100));
             Console.CursorLeft = 0;
             PrintProductByIndex(productIndex, categoryIndex);
+            
+            //Console.CursorTop--;
             Console.ResetColor();
         }
         internal static void DeselectCurrentProductAt(int productIndex, int categoryIndex)
@@ -49,6 +51,9 @@ namespace Fit4Life.Views
             PrintProductByIndex(productIndex, categoryIndex);
         }
 
+        /// <summary>
+        /// Prints a product from already fetched lists (product and category indexes required)
+        /// </summary>
         internal static void PrintProductByIndex(int productIndex, int categoryIndex, bool printForCart = false)
         {
             Console.Write($" {productIndex + 1}.");
@@ -65,6 +70,10 @@ namespace Fit4Life.Views
                     break;
             }
         }
+
+        /// <summary>
+        /// Prints a product whose type is defined by category index (independent from the fetched Lists)
+        /// </summary>
         internal static void PrintProduct(object product, int categoryIndex, bool printForCart = false)
         {
             switch (categoryIndex)
@@ -98,7 +107,7 @@ namespace Fit4Life.Views
             {
                 Console.Write($"Q:{supplement.Quantity}");
             }
-            Console.WriteLine();
+            
         }
         internal static void PrintEquipment(Equipment equipment, bool printForCart = false)
         {
@@ -113,7 +122,7 @@ namespace Fit4Life.Views
             {
                 Console.Write($"Q:{equipment.Quantity}");
             }
-            Console.WriteLine();
+            
         }
         /*internal static void PrintDrink(Drink drink)
         {

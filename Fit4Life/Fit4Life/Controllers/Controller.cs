@@ -10,22 +10,62 @@ using Fit4Life.Models;
 
 namespace Fit4Life.Controllers
 {
-    public class Controller
+    internal class Controller
     {
         private ShopContext shopContext { get; set; }
 
-        public object GetAllBasedOnCategory(int categoryIndex)
+        internal object GetAllBasedOnCategory(int categoryIndex)
         {
-            using(shopContext = new ShopContext())
+            using (shopContext = new ShopContext())
             {
-
-                return shopContext.GetCategoryByIndex(categoryIndex);
+                return GetCategoryByIndex(categoryIndex);
             }
         }
 
-        public void TransferFromShopToCart(int id, int quantity,int index)
+        internal void DecreaseQuantityOf(object product, int quantity = 1)
         {
-            using(shopContext = new ShopContext())
+            using (var shopContext = new ShopContext())
+            {
+                dynamic updater;
+                switch (product.GetType().Name.ToString())
+                {
+                    case "Supplements":
+                        Supplements supplement = (Supplements)product;
+                        updater = shopContext.Supplements.FirstOrDefault(s => s.Id == supplement.Id);
+                        updater.Quantity -= quantity;
+                        break;
+                    /*case "Drink":
+                        Supplements supplement = (Supplements)product;
+                        var updater = shopContext.Supplements.FirstOrDefault(s => s.Id == supplement.Id);
+                        updater.Quantity -= quantity;
+                        break;*/
+                    case "Equipment":
+                        Equipment equipment = (Equipment)product;
+                        updater = shopContext.Equipment.FirstOrDefault(s => s.Id == equipment.Id);
+                        updater.Quantity -= quantity;
+                        break;
+                }
+                shopContext.SaveChanges();
+            }
+        }
+
+        private object GetCategoryByIndex(int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    return shopContext.Supplements.ToList();
+                case 1:
+                    break;
+                case 2:
+                    return shopContext.Equipment.ToList();
+            }
+            return null;
+        }
+
+        /*public void TransferFromShopToCart(int id, int quantity, int index)
+        {
+            using (shopContext = new ShopContext())
             {
                 switch (index)
                 {
@@ -73,9 +113,8 @@ namespace Fit4Life.Controllers
                         break;
                 }
             }
-        }
-
-        void AddProduct(Product product, int index)
+        }*/
+        /*void AddProduct(Product product, int index)
         {
             using (shopContext = new ShopContext())
             {
@@ -92,11 +131,9 @@ namespace Fit4Life.Controllers
                     default:
                         break;
                 }
-                
-            }
-        }
 
-        
+            }
+        }*/
         /*private Display display;
         private DataManagement dataManagement;
         internal void Start()
