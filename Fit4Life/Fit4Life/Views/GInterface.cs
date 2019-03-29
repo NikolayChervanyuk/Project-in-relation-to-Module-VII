@@ -61,30 +61,25 @@ namespace Fit4Life.Extentions
         }
 
         /// <summary>
-        /// Generates list of type string by providing a string. Each word, separated by semicolon gets added to the list
+        /// Generates list of type string from provided string. Each word, separated by semicolon gets added to the list
         /// </summary>
         /// <param name="optionsString">Separate each option with semicolon(;)</param>
         /// <param name="printOptions">If set true, prints the list</param>
-        internal static List<string> GetStringListByString(string optionsString, bool printOptions = false)
+        internal static List<string> GetStringListFromString(string optionsString, bool printOptions = false)
         {
-            var OptionsList = ObjectSelections.OptionsList;
-            if (OptionsList == null)
+            var OptionsList = new List<string>();
+            int separatorInd = 0;
+            int ind = -1;
+            while (++ind < optionsString.Length)
             {
-                OptionsList = new List<string>();
-                //Here we add the options which would be displayed in our main page.
-                //! Separate each object with (;)
-                int separatorInd = 0;
-                int ind = -1;
-                while (++ind < optionsString.Length)
+                if (optionsString[ind] == ';')
                 {
-                    if (optionsString[ind] == ';')
-                    {
-                        OptionsList.Add(optionsString.Substring(separatorInd, ind - separatorInd));
-                        separatorInd = ind + 1;
-                    }
+                    OptionsList.Add(optionsString.Substring(separatorInd, ind - separatorInd));
+                    separatorInd = ind + 1;
                 }
-                OptionsList.Add(optionsString.Substring(separatorInd, ind - separatorInd));
             }
+            OptionsList.Add(optionsString.Substring(separatorInd, ind - separatorInd));
+
             //Print options if printOptions = true;
             if (printOptions)
             {
@@ -233,7 +228,7 @@ namespace Fit4Life.Extentions
         }
 
         /// <summary>
-        /// Determines wheater a list contains a product from the defined type or not
+        /// Determines wheater a list contains a product from the defined type or not.
         /// </summary>
         internal static bool ObjectListContainsProduct(List<object> shoppingCartList, object product, string productType)
         {
@@ -350,7 +345,25 @@ namespace Fit4Life.Extentions
             //ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);
         }
         /// <summary>
-        /// Returns a horizontal line
+        /// Deletes a row without changing cursor's position.
+        /// </summary>
+        internal static void DeleteRow()
+        {
+            int initialCursorPos_X = Console.CursorLeft;
+            int initialCursorPos_Y = Console.CursorTop;
+            Console.CursorLeft = 0;
+            while (true)
+            {
+                Console.Write(' ');
+                if (Console.CursorTop != initialCursorPos_Y)
+                {
+                    Console.SetCursorPosition(initialCursorPos_X, initialCursorPos_Y);
+                    break;
+                }
+            }
+        }
+        /// <summary>
+        /// Returns a horizontal line.
         /// </summary>
         internal static string HorizontalLine(char character, int lineLenght)
         {
@@ -361,7 +374,7 @@ namespace Fit4Life.Extentions
             }
             return string.Concat(charactersLine);
         }
-        /// <param name="clearLine">If true then clears all chars beforehand</param>
+        /// <param name="clearLine">If true, then clears all chars beforehand.</param>
         internal static void ShiftText(int positions, bool clearLine = false)
         {
             if (clearLine)

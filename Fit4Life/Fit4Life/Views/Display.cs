@@ -26,7 +26,7 @@ namespace Fit4Life.Views
             Console.WriteLine($"Total: {shoppingCartTotal:f2}bgn");
             GInterface.PrintMainPageHeadder();
             string optionsString = "Supplements;Drinks;Equipment;Admin login";
-            ObjectSelections.OptionsList = GInterface.GetStringListByString(optionsString, printOptions: true);
+            ObjectSelections.OptionsList = GInterface.GetStringListFromString(optionsString, printOptions: true);
             pickedOptionIndex = SelectOption();
         }
         /// <summary>
@@ -35,7 +35,7 @@ namespace Fit4Life.Views
         /// <returns></returns>
         private int SelectOption(int optionIndex = 0)
         {
-            int pickedOptionIndex = -1;
+            //int pickedOptionIndex = -1;
             //the following code enables option selection with arrow keys and enter
             int optIndex = 0;
             int optionsCount = ObjectSelections.OptionsList.Count;
@@ -110,18 +110,17 @@ namespace Fit4Life.Views
             }
         }
 
-        private void OpenAdminView()
+        private void OpenAdminView(bool secureUser = true)
         {
             AdminPanel admin = new AdminPanel();
+            int pickedAction = -1;
             Console.Clear();
-            if (admin.IsAccessGained())
+            if (admin.IsAccessGained()  || secureUser)
             {
-                Console.Clear();
-                Console.WriteLine("+" + GInterface.HorizontalLine('-', 17) + "+");
-                Console.WriteLine("|-<Welcome admin>-|");
-                Console.WriteLine("+" + GInterface.HorizontalLine('~', 17) + "+");
+                admin.PrintAdminPageHeadder();
                 //System.Threading.Thread.Sleep(1000);
-                admin.SelectAction();
+                pickedAction = admin.SelectAction();
+                admin.TakeAction(pickedAction);
             }
             else
             {

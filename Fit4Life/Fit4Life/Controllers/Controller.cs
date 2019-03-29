@@ -63,6 +63,27 @@ namespace Fit4Life.Controllers
             return null;
         }
 
+        internal void AddProduct(object product, int categoryIndex)
+        {
+            using (shopContext = new ShopContext())
+            {
+                switch (categoryIndex)
+                {
+                    case 0:
+                        Supplements supplement = (Supplements)product;
+                        shopContext.Supplements.Add(new Supplements());
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        Equipment equipment = (Equipment)product;
+                        shopContext.Equipment.Add(new Equipment());
+                        break;
+                }
+
+            }
+        }
+
         /*public void TransferFromShopToCart(int id, int quantity, int index)
         {
             using (shopContext = new ShopContext())
@@ -112,26 +133,6 @@ namespace Fit4Life.Controllers
                     default:
                         break;
                 }
-            }
-        }*/
-        /*void AddProduct(Product product, int index)
-        {
-            using (shopContext = new ShopContext())
-            {
-                switch (index)
-                {
-                    case 0:
-                        shopContext.Supplements.Add(new Supplements());
-                        break;
-                    case 1:
-                        break;
-                    case 2:
-                        shopContext.Equipment.Add(new Equipment());
-                        break;
-                    default:
-                        break;
-                }
-
             }
         }*/
         /*private Display display;

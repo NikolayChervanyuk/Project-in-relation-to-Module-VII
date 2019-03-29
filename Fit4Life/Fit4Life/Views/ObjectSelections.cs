@@ -30,6 +30,21 @@ namespace Fit4Life.Views
             Console.Write($"{optionIndex + 1}." + OptionsList.ElementAt(optionIndex) + new string(' ', Console.BufferWidth / 2));
         }
 
+        /*internal static void SelectCurrentAdminActionAt(int topOffset, int actionIndex = 0)
+        {
+            Console.BackgroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.SetCursorPosition(0, topOffset + actionIndex);
+            Console.Write($"{actionIndex + 1}." + OptionsList.ElementAt(actionIndex) + "<");
+            Console.ResetColor();
+        }
+        internal static void DeselectCurrentAdminActionAt(int topOffset, int actionIndex = 0)
+        {
+            Console.ResetColor();
+            Console.SetCursorPosition(0, topOffset + actionIndex);
+            Console.Write($"{actionIndex + 1}." + OptionsList.ElementAt(actionIndex) + "<");
+        }
+        */
         internal static void SelectCurrentProductAt(int productIndex, int categoryIndex)
         {
             Console.BackgroundColor = ConsoleColor.White;
@@ -38,7 +53,7 @@ namespace Fit4Life.Views
             Console.Write(new string(' ', 100));
             Console.CursorLeft = 0;
             PrintProductByIndex(productIndex, categoryIndex);
-            
+
             //Console.CursorTop--;
             Console.ResetColor();
         }
@@ -50,6 +65,7 @@ namespace Fit4Life.Views
             Console.CursorLeft = 0;
             PrintProductByIndex(productIndex, categoryIndex);
         }
+
 
         /// <summary>
         /// Prints a product from already fetched lists (product and category indexes required)
@@ -92,13 +108,15 @@ namespace Fit4Life.Views
                     break;
             }
         }
+
+
         internal static void PrintSupplement(Supplements supplement, bool printForCart = false)
         {
             int offset = 0;
             Console.Write($" {supplement.Name}");
-            Console.CursorLeft = offset += 35;
+            Console.CursorLeft = offset += 34;
             Console.Write($"{supplement.Brand}");
-            Console.CursorLeft = offset += 20;
+            Console.CursorLeft = offset += 19;
             Console.Write($"{supplement.Weight}");
             Console.CursorLeft = offset += 26;
             Console.Write($"{supplement.Price:#.00}bgn");
@@ -107,7 +125,7 @@ namespace Fit4Life.Views
             {
                 Console.Write($"Q:{supplement.Quantity}");
             }
-            
+
         }
         internal static void PrintEquipment(Equipment equipment, bool printForCart = false)
         {
@@ -122,7 +140,7 @@ namespace Fit4Life.Views
             {
                 Console.Write($"Q:{equipment.Quantity}");
             }
-            
+
         }
         /*internal static void PrintDrink(Drink drink)
         {
