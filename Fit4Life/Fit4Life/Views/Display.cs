@@ -15,6 +15,8 @@ namespace Fit4Life.Views
         Controller controller = new Controller();
         internal static int pickedOptionIndex = -1;
         internal static decimal shoppingCartTotal = 0;
+        private static string optionsString = "Supplements;Drinks;Equipment;Admin login";
+        private static int adminOptionIndex = -1;
         /// <summary>
         /// Initializes main page headder and sets optionIndex 
         /// to the option the user has selected
@@ -25,7 +27,6 @@ namespace Fit4Life.Views
             GInterface.SetWindowSize(50, 60);
             Console.WriteLine($"Total: {shoppingCartTotal:f2}bgn");
             GInterface.PrintMainPageHeadder();
-            string optionsString = "Supplements;Drinks;Equipment;Admin login";
             ObjectSelections.OptionsList = GInterface.GetStringListFromString(optionsString, printOptions: true);
             pickedOptionIndex = SelectOption();
         }
@@ -42,6 +43,7 @@ namespace Fit4Life.Views
             Console.CursorVisible = false;
             ObjectSelections.SelectCurrentOptionAt(optionIndex);
             ConsoleKeyInfo key = Console.ReadKey();
+            //Loop, while option is not selected
             while (key.Key != ConsoleKey.Enter)
             {
                 switch (key.Key)
@@ -110,26 +112,25 @@ namespace Fit4Life.Views
             }
         }
 
-        private void OpenAdminView(bool secureUser = true)
+        private void OpenAdminView(bool trustedUser = false)
         {
             AdminPanel admin = new AdminPanel();
             int pickedAction = -1;
             Console.Clear();
-            if (admin.IsAccessGained()  || secureUser)
+            if (admin.IsAccessGained() || trustedUser)
             {
-                admin.PrintAdminPageHeadder();
-                //System.Threading.Thread.Sleep(1000);
-                pickedAction = admin.SelectAction();
-                admin.TakeAction(pickedAction);
-            }
-            else
-            {
-                OpenHomeView();
-                return;
-            }
-        }
+                do
+                {
 
-       
+                    admin.PrintAdminPageHeadder();
+                    //System.Threading.Thread.Sleep(1000);
+                    pickedAction = admin.SelectAction();
+                    admin.TakeAction(pickedAction);
+                } while (pickedAction != -1);
+            }
+            //OpenHomeView();
+            return;
+        }
 
         private void PrintProductsBasedOnCategory(int optionIndex)
         {
@@ -262,18 +263,18 @@ namespace Fit4Life.Views
             OpenHomeView();
         }
 
-
         private void ManageViews()
         {
-            if (pickedOptionIndex == -1)
-            {
-                OpenHomeView();
-            }
             do
             {
-                if (pickedOptionIndex == 3)
+                if (pickedOptionIndex == -1)
+                {
+                    OpenHomeView();
+                }
+                else if (pickedOptionIndex == 3)
                 {
                     OpenAdminView();
+                    pickedOptionIndex = -1;
                 }
                 else
                 {
@@ -285,6 +286,9 @@ namespace Fit4Life.Views
         {
             GInterface.ShoppingCartList = new List<object>();
             GInterface.ShoppingCartProductCounter = new List<int>();
+            
+            ObjectSelections.OptionsList = GInterface.GetStringListFromString(optionsString);
+            adminOptionIndex = ObjectSelections.OptionsList.Count - 1;
             ManageViews();
         }
     }

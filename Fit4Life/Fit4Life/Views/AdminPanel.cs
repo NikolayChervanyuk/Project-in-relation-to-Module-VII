@@ -62,8 +62,10 @@ namespace Fit4Life.Views
                 }
             } while (string.Join("", passwordEntered.ToArray()) != adminPassword);
 
-            actions = "Restock supplement;Restock drink;Restock equipment;" +
-            "Add new supplement;Add new Drink;Add new Equipment";
+            actions =
+                "Restock supplement;Restock drink;Restock equipment;" +
+                "Add new supplement;Add new drink;Add new Equipment;" +
+                "Delete new supplement;Delete new drink;Delete new Equipment";
             return true;
         }
 
@@ -107,6 +109,7 @@ namespace Fit4Life.Views
         internal void TakeAction(int pickedActionIndex)
         {
             Console.Clear();
+            if (pickedActionIndex < 0) return;
             //Restock action
             if (pickedActionIndex >= 0 && pickedActionIndex <= 2)
             {
@@ -132,8 +135,6 @@ namespace Fit4Life.Views
                         {
                             Console.Clear();
                             DisplayInfoMsg("Supplement discarded");
-                            Console.ResetColor();
-
                         }
                         else
                         {
@@ -147,8 +148,7 @@ namespace Fit4Life.Views
                 }
             }
             Console.Clear();
-            PrintAdminPageHeadder();
-            SelectAction();
+            return;
         }
 
         /// <summary>
@@ -165,19 +165,24 @@ namespace Fit4Life.Views
             int maxWeightGrams = 99999;
             int doseFromWeight = 20;
             int maxQuantity = 9999;
-            bool isValid = true;
             bool isEscapeKeyPressed = false;
+            bool isValid = true;
             //Name check
             do
             {
                 List<string> sName = new List<string>();
                 if (!isValid)
                 {
-                    DisplayErrorMsg("Symbol limit overreached!");
+                    DisplayErrorMsg("Name too long or blank!");
                 }
-                Console.Write("Supplemnt name(no more than 32 symbols):");
+                Console.Write("Supplemnt name(not empty and no more than 32 symbols):");
                 EnterField(out sName, out isEscapeKeyPressed);
-                if (sName.Count > maxNameLenght)
+                if (isEscapeKeyPressed)
+                {
+                    supplement = null;
+                    return;
+                }
+                if (sName.Count <= 0 || sName.Count > maxNameLenght)
                 {
                     isValid = false;
                 }
@@ -187,11 +192,7 @@ namespace Fit4Life.Views
                     break;
                 }
             } while (true);
-            if (isEscapeKeyPressed)
-            {
-                supplement = null;
-                return;
-            }
+            Console.Clear();
 
             //Brand check
             isValid = true;
@@ -199,35 +200,54 @@ namespace Fit4Life.Views
             {
                 if (!isValid)
                 {
-                    DisplayErrorMsg("Symbol limit overreached!");
+                    DisplayErrorMsg("Brand name too long or blank!", 2200);
                 }
                 Console.Write("Supplement brand(no more than 20 symbols):");
-                string sBrand = Console.ReadLine();
-                if (sBrand.Length > maxBrandLenght)
+                List<string> sBrand = new List<string>();
+                EnterField(out sBrand, out isEscapeKeyPressed);
+                if (isEscapeKeyPressed)
+                {
+                    supplement = null;
+                    return;
+                }
+                if (sBrand.Count <= 0 || sBrand.Count > maxBrandLenght)
                 {
                     isValid = false;
                 }
                 else
                 {
-                    supplement.Brand = sBrand;
+                    supplement.Brand = string.Join("", sBrand);
                     break;
                 }
             } while (true);
-
+            Console.Clear();
+            
             //Price check
+            isValid = true;
             do
             {
-                isValid = true;
                 Console.Write($"Supplement price(max value is {maxPriceValue}):");
-                decimal number;
-                isValid = decimal.TryParse(Console.ReadLine(), out number);
-                if (!isValid)
+                List<string> PriceString;
+                EnterField(out PriceString, out isEscapeKeyPressed);
+                if(isEscapeKeyPressed)
                 {
-                    DisplayErrorMsg("Invalid price format!");
+                    supplement = null;
+                    return;
+                }
+                string priceString = "";
+                foreach (string item in PriceString)
+                {
+                    priceString += item;
+                }
+                decimal price;
+                bool isDecimal = decimal.TryParse(priceString, out price);
+                if (!(isValid && isDecimal))
+                {
+                    DisplayErrorMsg("Invalid price format or !", 2500);
                 }
                 else
                 {
-                    supplement.Price = number;
+                    supplement.Price = price;
                     break;
                 }
             } while (true);
@@ -239,7 +259,6 @@ namespace Fit4Life.Views
 
             } while (true);
 
-            supplement = null;
         }
 
         private void EnterField(out List<string> fieldName, out bool isEscapeKeyPressed)
@@ -267,12 +286,10 @@ namespace Fit4Life.Views
                     }
                     else Console.CursorLeft++;
                 }
-                else
+                else if(key.Key != ConsoleKey.Enter)
                 {
                     symbolEntered = Convert.ToString(key.KeyChar);
                     fieldName.Add(Convert.ToString(symbolEntered));
-                    Console.CursorLeft--;
-                    Console.Write(key.KeyChar);
                     index++;
                 }
             } while (key.Key != ConsoleKey.Enter);
@@ -285,25 +302,25 @@ namespace Fit4Life.Views
             Console.WriteLine("|-<Welcome admin>-|");
             Console.WriteLine("+" + GInterface.HorizontalLine('~', 17) + "+");
         }
-        private void DisplayInfoMsg(string infoMessage)
+        private void DisplayInfoMsg(string infoMessage, int timeout = 1000)
         {
             Console.Clear();
             Console.WriteLine(GInterface.HorizontalLine('x', infoMessage.Length));
             InformingConsoleColor();
             Console.Write(infoMessage);
-            System.Threading.Thread.Sleep(1000);
+            System.Threading.Thread.Sleep(timeout);
             Console.ResetColor();
             Console.CursorLeft = 0;
             GInterface.DeleteRow();
             Console.Clear();
         }
-        private void DisplayErrorMsg(string errorMessage)
+        private void DisplayErrorMsg(string errorMessage, int timeout = 1000)
         {
             Console.Clear();
             Console.WriteLine(GInterface.HorizontalLine('x', errorMessage.Length));
             WarningConsoleColor();
             Console.Write(errorMessage);
-            System.Threading.Thread.Sleep(900);
+            System.Threading.Thread.Sleep(timeout);
             Console.ResetColor();
             Console.CursorLeft = 0;
             GInterface.DeleteRow();

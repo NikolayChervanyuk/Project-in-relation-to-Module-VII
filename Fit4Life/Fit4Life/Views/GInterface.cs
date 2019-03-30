@@ -61,7 +61,7 @@ namespace Fit4Life.Extentions
         }
 
         /// <summary>
-        /// Generates list of type string from provided string. Each word, separated by semicolon gets added to the list
+        /// Generates list of type string from provided string. Each word, separated by semicolon(;) gets added to the list
         /// </summary>
         /// <param name="optionsString">Separate each option with semicolon(;)</param>
         /// <param name="printOptions">If set true, prints the list</param>
@@ -79,18 +79,18 @@ namespace Fit4Life.Extentions
                 }
             }
             OptionsList.Add(optionsString.Substring(separatorInd, ind - separatorInd));
-
-            //Print options if printOptions = true;
-            if (printOptions)
-            {
-                for (int i = 0; i < OptionsList.Count(); i++)
-                {
-                    Console.Write($"{i + 1}.");
-                    Console.WriteLine(OptionsList[i]);
-                }
-
-            }
+            if (printOptions) PrintOptions(OptionsList);
             return OptionsList;
+        }
+
+        internal static void PrintOptions(List<string> optionsList)
+        {
+            for (int i = 0; i < optionsList.Count(); i++)
+            {
+                Console.Write($"{i + 1}.");
+                Console.WriteLine(optionsList[i]);
+            }
+
         }
 
         /// <summary>
