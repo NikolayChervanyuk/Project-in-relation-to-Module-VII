@@ -80,28 +80,7 @@ namespace Fit4Life.Controllers
                         shopContext.Equipment.Add(equipment);
                         break;
                 }
-                shopContext.SaveChanges();
-            }
-        }
 
-
-        internal void RemoveProduct(object product,int categoryIndex)
-        {
-            using (shopContext = new ShopContext())
-            {
-                switch (categoryIndex)
-                {
-                    case 0:
-                       // Supplements supplement = shopContext.Supplements.Find(id) ;
-                       shopContext.Supplements.Remove((Supplements)product);
-                        break;
-                    case 1:
-                        break;
-                    case 2:
-                     //   Equipment equipment = shopContext.Equipment.Find(id);
-                    //    shopContext.Equipment.Remove(equipment);
-                        break;
-                }
             }
         }
 
