@@ -71,7 +71,7 @@ namespace Fit4Life.Controllers
                 {
                     case 0:
                         Supplements supplement = (Supplements)product;
-                        shopContext.Supplements.Add(new Supplements());
+                        shopContext.Supplements.Add(supplement);
                         break;
                     case 1:
                         break;
@@ -80,7 +80,6 @@ namespace Fit4Life.Controllers
                         shopContext.Equipment.Add(new Equipment());
                         break;
                 }
-
             }
         }
 
