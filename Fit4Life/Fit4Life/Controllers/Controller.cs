@@ -71,19 +71,65 @@ namespace Fit4Life.Controllers
                 {
                     case 0:
                         Supplements supplement = (Supplements)product;
-                        shopContext.Supplements.Add(new Supplements());
+                        shopContext.Supplements.Add(supplement);
                         break;
                     case 1:
                         break;
                     case 2:
                         Equipment equipment = (Equipment)product;
-                        shopContext.Equipment.Add(new Equipment());
+                        shopContext.Equipment.Add(equipment);
                         break;
                 }
-
+                shopContext.SaveChanges();
             }
         }
 
+
+        internal void RemoveProduct(object product,int categoryIndex)
+        {
+            using (shopContext = new ShopContext())
+            {
+                switch (categoryIndex)
+                {
+                    case 0:
+                       // Supplements supplement = shopContext.Supplements.Find(id) ;
+                       shopContext.Supplements.Remove((Supplements)product);
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                     //   Equipment equipment = shopContext.Equipment.Find(id);
+                    //    shopContext.Equipment.Remove(equipment);
+                        break;
+                }
+            }
+        }
+
+        internal void RestockProduct(object product, int categoryIndex, int quantity)
+        {
+            using (shopContext = new ShopContext())
+            {
+                switch (categoryIndex)
+                {
+                    case 0:
+                        Supplements supplement = (Supplements)product;
+                        supplement.Quantity += quantity;
+                        Supplements supplementToReplace = shopContext.Supplements.Find(supplement.Id);
+                        
+                        shopContext.Entry(supplementToReplace).CurrentValues.SetValues(supplement);
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        Equipment equipment = (Equipment)product;
+                        equipment.Quantity += quantity;
+                        Equipment equipmentToReplace = shopContext.Equipment.Find(equipment.Id);
+
+                        shopContext.Entry(equipmentToReplace).CurrentValues.SetValues(equipment);
+                        break;
+                }
+            }
+        }
         /*public void TransferFromShopToCart(int id, int quantity, int index)
         {
             using (shopContext = new ShopContext())

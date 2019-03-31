@@ -55,6 +55,7 @@ namespace Fit4Life.Views
                             optIndex = (optIndex % (optionsCount - 1)) - 1;
                         }
                         ObjectSelections.SelectCurrentOptionAt(++optIndex);
+
                         break;
 
                     case ConsoleKey.UpArrow:
