@@ -67,9 +67,12 @@
     <Compile Include="Controllers\Controller.cs" />
     <Compile Include="Data\Models\Equipment.cs" />
     <Compile Include="Data\Models\Cart.cs" />
-    <Compile Include="Data\Models\Category.cs" />
-    <Compile Include="Data\Models\Product.cs" />
     <Compile Include="Data\ShopContext.cs" />
+    <Compile Include="Migrations\201904010914478_AddNewTableCart.cs" />
+    <Compile Include="Migrations\201904010914478_AddNewTableCart.Designer.cs">
+      <DependentUpon>201904010914478_AddNewTableCart.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Views\AdminPanel.cs" />
     <Compile Include="Views\GInterface.cs" />
     <Compile Include="Data\Models\Supplements.cs" />
@@ -82,6 +85,10 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201904010914478_AddNewTableCart.resx">
+      <DependentUpon>201904010914478_AddNewTableCart.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -153,6 +153,7 @@ namespace Fit4Life.Views
         private void SelectProduct(int optionIndex)
         {
             int productIndex = 0;
+            int categoryIndex = -1;
             int listLenght = GInterface.GetListLenghtByCategory(optionIndex);
             ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);
             var key = Console.ReadKey();
@@ -185,6 +186,7 @@ namespace Fit4Life.Views
                         switch (currentProduct.GetType().Name.ToString())
                         {
                             case "Supplements":
+                                categoryIndex = 0;
                                 Supplements supplement = (Supplements)currentProduct;
                                 if (supplement.Quantity <= 0)
                                 {
@@ -204,10 +206,11 @@ namespace Fit4Life.Views
                                 break;
                             case "Drink":
                                 /*Drink drink = (Drink)product;
-                                  
+                                  categoryIndex = 1;
                                  */
                                 break;
                             case "Equipment":
+                                categoryIndex = 2;
                                 Equipment equipment = (Equipment)currentProduct;
                                 if (equipment.Quantity <= 0)
                                 {
@@ -233,12 +236,16 @@ namespace Fit4Life.Views
                             if (GInterface.ObjectListContainsProduct(GInterface.ShoppingCartList, currentProduct, productType))
                             {
                                 GInterface.ShoppingCartProductCounter[GInterface.indexerOfProductsCounter]++;
+                                controller.IncreaseQuantityOfCartProduct(currentProduct,categoryIndex);
                             }
                             //if product does not exist in cart, create it
                             else
                             {
+                                //integrated logic prohibits increasing quantity if product alreadt exists  
+                                controller.IncreaseQuantityOfCartProduct(currentProduct, categoryIndex);
                                 GInterface.ShoppingCartProductCounter.Add(1);
                                 GInterface.ShoppingCartList.Add(currentProduct);
+                                controller.AddToCart(currentProduct, categoryIndex);
                             }
                             Console.WriteLine();
                         }

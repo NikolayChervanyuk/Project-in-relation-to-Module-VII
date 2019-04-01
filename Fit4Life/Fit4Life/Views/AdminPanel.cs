@@ -275,7 +275,6 @@ namespace Fit4Life.Views
                 else DisplayErrorMsg("Invalid weight format or blank!", 1800);
             } while (true);
             supplement.Quantity = 0;
-            supplement.Category_id = 1;
             return supplement;
         }
 

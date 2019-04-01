@@ -35,6 +35,14 @@ namespace Fit4Life.Controllers
             }
             return null;
         }
+
+        internal List<Cart> GetCart()
+        {
+            using (shopContext = new ShopContext())
+            {
+                return shopContext.Cart.ToList();
+            }
+        }
         
         //create
         internal void AddProduct(object product, int categoryIndex)
@@ -110,62 +118,86 @@ namespace Fit4Life.Controllers
         }
 
         //delete
-        internal void DeleteProduct(object product, int index)
-        {
-
-        }
-
-        /*public void TransferFromShopToCart(int id, int quantity, int index)
+        internal void DeleteProduct(object product, int categoryIndex)
         {
             using (shopContext = new ShopContext())
             {
-                switch (index)
+                switch (categoryIndex)
                 {
                     case 0:
-                        Supplements supplement = shopContext.Supplements.Find(id);
-                        supplement.Quantity -= quantity;
-
-                        foreach (var item in shopContext.Cart)
-                        {
-                            if (item.Name == supplement.Name)
-                            {
-                                item.Quantity++;
-                                shopContext.SaveChanges();
-                                break;
-                            }
-                        }
-
-                        shopContext.Cart.Add(new Cart(supplement.Name, supplement.Price, quantity));
-                        shopContext.SaveChanges();
+                        // Supplements supplement = shopContext.Supplements.Find(id) ;
+                        shopContext.Supplements.Remove((Supplements)product);
                         break;
-
                     case 1:
                         break;
-
                     case 2:
-                        Equipment equipment = shopContext.Equipment.Find(id);
-                        equipment.Quantity -= quantity;
+                        //   Equipment equipment = shopContext.Equipment.Find(id);
+                        //    shopContext.Equipment.Remove(equipment);
+                        break;
+                }
+                shopContext.SaveChanges();
+            }
+        }
 
-                        foreach (var item in shopContext.Cart)
+        internal void AddToCart(object product, int categoryIndex)
+        {
+            using (shopContext = new ShopContext())
+            {
+                switch (categoryIndex)
+                {
+                    case 0:
+                        Supplements supplement = (Supplements)product ;
+                        shopContext.Cart.Add(new Cart(supplement.Name, supplement.Price, 1));
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        Equipment equipment = (Equipment)product;
+                        shopContext.Cart.Add(new Cart(equipment.Name, equipment.Price, 1));
+                        break;
+                }
+                shopContext.SaveChanges();
+            }
+        }
+
+        internal void IncreaseQuantityOfCartProduct(object product, int categoryIndex, int quantity = 1)
+        {
+            using (shopContext = new ShopContext())
+            {
+                if(shopContext.Cart.Count() == 0)
+                {
+                    return;
+                }
+                switch (categoryIndex)
+                {
+                    case 0:
+                        Supplements supplement = (Supplements)product;
+                        foreach (var productInCart in shopContext.Cart.ToList())
                         {
-                            if (item.Name == equipment.Name)
+                            if(productInCart.Name == supplement.Name)
                             {
-                                item.Quantity++;
-                                shopContext.SaveChanges();
+                                productInCart.Quantity += quantity;
                                 break;
                             }
                         }
-
-                        shopContext.Cart.Add(new Cart(equipment.Name, equipment.Price, quantity));
-                        shopContext.SaveChanges();
                         break;
-
-
-                    default:
+                    case 1:
+                        break;
+                    case 2:
+                        Equipment equipment = (Equipment)product;
+                        foreach (var productInCart in shopContext.Cart)
+                        {
+                            if (productInCart.Name == equipment.Name)
+                            {
+                                productInCart.Quantity += quantity;
+                                break;
+                            }
+                        }
                         break;
                 }
+                shopContext.SaveChanges();
             }
-        }*/
+        }
         /*private Display display;
         private DataManagement dataManagement;
         internal void Start()

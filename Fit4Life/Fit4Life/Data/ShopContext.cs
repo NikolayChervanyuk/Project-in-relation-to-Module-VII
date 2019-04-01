@@ -14,7 +14,7 @@ namespace Fit4Life.Data
         public ShopContext()
             :base("name = ShopContext") { }
 
-        public DbSet<Category> Categories { get; set; }
+        
         public DbSet<Supplements> Supplements { get; set; }
         public DbSet<Equipment> Equipment { get; set; }
         public DbSet<Cart> Cart { get; set; }
