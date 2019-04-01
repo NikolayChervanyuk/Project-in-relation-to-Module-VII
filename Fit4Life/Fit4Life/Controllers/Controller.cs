@@ -7,6 +7,7 @@ using Fit4Life.Views;
 using Fit4Life.Data.Models;
 using Fit4Life.Data;
 using Fit4Life.Models;
+using System.Data.Entity;
 
 namespace Fit4Life.Controllers
 {
@@ -35,7 +36,7 @@ namespace Fit4Life.Controllers
             }
             return null;
         }
-        
+
         //create
         internal void AddProduct(object product, int categoryIndex)
         {
@@ -110,9 +111,25 @@ namespace Fit4Life.Controllers
         }
 
         //delete
-        internal void DeleteProduct(object product, int index)
+        internal void DeleteProduct(object product, int categoryIndex)
         {
-
+            using (shopContext = new ShopContext())
+            {
+                switch (categoryIndex)
+                {
+                    case 0:
+                        Supplements supplement = (Supplements)product;
+                        shopContext.Entry(supplement).State = EntityState.Deleted;
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        Equipment equipment = (Equipment)product;
+                        shopContext.Entry(equipment).State = EntityState.Deleted;
+                        break;
+                }
+                shopContext.SaveChanges();
+            }
         }
 
         /*public void TransferFromShopToCart(int id, int quantity, int index)

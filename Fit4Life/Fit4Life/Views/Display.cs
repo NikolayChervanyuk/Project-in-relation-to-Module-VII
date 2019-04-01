@@ -12,7 +12,7 @@ namespace Fit4Life.Views
 {
     internal class Display
     {
-        Controller controller = new Controller();
+        Controller controller;
         internal static int pickedOptionIndex = -1;
         internal static decimal shoppingCartTotal = 0;
         private static string optionsString = "Supplements;Drinks;Equipment;Admin login";
@@ -24,7 +24,7 @@ namespace Fit4Life.Views
         internal void OpenHomeView()
         {
             Console.Clear();
-            GInterface.SetWindowSize(50, 60);
+            GInterface.SetWindowSize(GInterface.mainPageWindowSize[0], GInterface.mainPageWindowSize[1]);
             Console.WriteLine($"Total: {shoppingCartTotal:f2}bgn");
             GInterface.PrintMainPageHeadder();
             ObjectSelections.OptionsList = GInterface.GetStringListFromString(optionsString, printOptions: true);
@@ -42,7 +42,7 @@ namespace Fit4Life.Views
             int optionsCount = ObjectSelections.OptionsList.Count;
             Console.CursorVisible = false;
             ObjectSelections.SelectCurrentOptionAt(optionIndex);
-            ConsoleKeyInfo key = Console.ReadKey();
+            ConsoleKeyInfo key = Console.ReadKey(true);
             //Loop, while option is not selected
             while (key.Key != ConsoleKey.Enter)
             {
@@ -66,6 +66,22 @@ namespace Fit4Life.Views
                         }
                         ObjectSelections.SelectCurrentOptionAt(--optIndex);
                         break;
+                    case ConsoleKey.Tab:
+                        GInterface.SetWindowSize(GInterface.productPageWindowSize[0], GInterface.productPageWindowSize[1]);
+                        GInterface.ShowCart();
+                        do
+                        {
+                            Console.CursorLeft = 0;
+                            Console.Write(' ');
+                            key = Console.ReadKey(true);
+                        } while (key.Key != ConsoleKey.Tab && key.Key != ConsoleKey.Escape);
+                        Console.Clear();
+                        GInterface.SetWindowSize(GInterface.mainPageWindowSize[0], GInterface.mainPageWindowSize[1]);
+                        Console.WriteLine($"Total: {shoppingCartTotal:f2}bgn");
+                        GInterface.PrintMainPageHeadder();
+                        GInterface.PrintOptions(ObjectSelections.OptionsList);
+                        ObjectSelections.SelectCurrentOptionAt(optionIndex);
+                        break;
                     case ConsoleKey.Escape:
                         Console.Clear();
                         Console.WriteLine("Visit us again :)");
@@ -73,7 +89,7 @@ namespace Fit4Life.Views
                         Environment.Exit(0);
                         break;
                 }
-                key = Console.ReadKey();
+                key = Console.ReadKey(true);
             }
             Console.CursorVisible = true;
             return pickedOptionIndex = optIndex;
@@ -155,7 +171,7 @@ namespace Fit4Life.Views
             int productIndex = 0;
             int listLenght = GInterface.GetListLenghtByCategory(optionIndex);
             ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);
-            var key = Console.ReadKey();
+            var key = Console.ReadKey(true);
             while (!(key.Key == ConsoleKey.Escape || key.Key == ConsoleKey.Backspace))
             {
                 switch (key.Key)
@@ -237,6 +253,7 @@ namespace Fit4Life.Views
                             //if product does not exist in cart, create it
                             else
                             {
+
                                 GInterface.ShoppingCartProductCounter.Add(1);
                                 GInterface.ShoppingCartList.Add(currentProduct);
                             }
@@ -249,16 +266,15 @@ namespace Fit4Life.Views
                         {
                             Console.CursorLeft = 0;
                             Console.Write(' ');
-                            key = Console.ReadKey();
+                            key = Console.ReadKey(true);
                         } while (key.Key != ConsoleKey.Tab && key.Key != ConsoleKey.Escape);
                         Console.Clear();
-                        //GInterface.PrintProductsPageHeadder()
                         GInterface.PrintProductsPageHeadder(shoppingCartTotal, optionIndex);
                         GInterface.PrintProductsFormated(optionIndex);
                         ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);
                         break;
                 }
-                key = Console.ReadKey();
+                key = Console.ReadKey(true);
             }
             Console.Clear();
             OpenHomeView();
@@ -285,9 +301,13 @@ namespace Fit4Life.Views
         }
         public Display()
         {
+            Console.WriteLine("Initializing, please wait...");
             GInterface.ShoppingCartList = new List<object>();
             GInterface.ShoppingCartProductCounter = new List<int>();
-            
+            controller = new Controller();
+            GInterface.SupplementsList = (List<Supplements>)GInterface.GetCategorizedList(0,controller);
+            //GInterface.DrinkssList = (List<Equipment>)GInterface.GetCategorizedList(1, controller);
+            GInterface.EquipmentsList = (List<Equipment>)GInterface.GetCategorizedList(2, controller);
             ObjectSelections.OptionsList = GInterface.GetStringListFromString(optionsString);
             adminOptionIndex = ObjectSelections.OptionsList.Count - 1;
             ManageViews();

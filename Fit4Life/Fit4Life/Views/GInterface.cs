@@ -28,7 +28,8 @@ namespace Fit4Life.Extentions
         private static readonly int screenHeight = Screen.PrimaryScreen.Bounds.Height;
         private static double widthCoeff = (double)screenWidth / screenHeight;
         private static double heightCoeff = (double)screenHeight / screenWidth;
-
+        internal static int[] mainPageWindowSize = { 50, 60 };
+        internal static int[] productPageWindowSize = { 60, 80 };
         internal static void SetWindowSize(int windowWidth, int windowHeight)
         {
             Console.SetWindowSize((int)(windowWidth * widthCoeff),
@@ -40,10 +41,10 @@ namespace Fit4Life.Extentions
 
         internal static void PrintMainPageHeadder()
         {
-            DrawVerticalLine('|', '+', 4);
+            DrawVerticalLine('|', '+', 4,true);
             Console.Write(HorizontalLine('-', '+', 24));
             Console.CursorLeft--;
-            DrawVerticalLine('|', '+', 4);
+            DrawVerticalLine('|', '+', 4,true);
             Console.WriteLine();
             ShiftText(5);
             Console.WriteLine("<|Fit 4 Life|>");
@@ -381,7 +382,7 @@ namespace Fit4Life.Extentions
             charactersLine[lineLenght-1] = endingsChar;
             return string.Concat(charactersLine);
         }
-        internal static void  DrawVerticalLine(char character, char endingsChar, int lineLenght)
+        internal static void  DrawVerticalLine(char character, char endingsChar, int lineLenght, bool returnCursor = false)
         {
             int cursorPos_X = Console.CursorLeft;
             int cursorPos_Y = Console.CursorTop;
@@ -394,7 +395,7 @@ namespace Fit4Life.Extentions
             }
             Console.CursorLeft--;
             Console.Write(endingsChar);
-            Console.SetCursorPosition(cursorPos_X, cursorPos_Y);
+            if(returnCursor) Console.SetCursorPosition(cursorPos_X, cursorPos_Y);
         }
         /// <param name="clearLine">If true, then clears all chars beforehand.</param>
         internal static void ShiftText(int positions, bool clearLine = false)

@@ -114,9 +114,9 @@ namespace Fit4Life.Views
         {
             int offset = 0;
             Console.Write($" {equipment.Name}");
-            Console.CursorLeft = offset += 35;
+            Console.CursorLeft = offset += 38;
             Console.Write($"{equipment.Brand}");
-            Console.CursorLeft = offset += 23;
+            Console.CursorLeft = offset += 27;
             Console.Write($"{equipment.Price:#.00}bgn");
             Console.CursorLeft = offset += 20;
             if (!printForCart)
