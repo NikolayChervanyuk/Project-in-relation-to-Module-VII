@@ -30,21 +30,6 @@ namespace Fit4Life.Views
             Console.Write($"{optionIndex + 1}." + OptionsList.ElementAt(optionIndex) + new string(' ', Console.BufferWidth / 2));
         }
 
-        /*internal static void SelectCurrentAdminActionAt(int topOffset, int actionIndex = 0)
-        {
-            Console.BackgroundColor = ConsoleColor.White;
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.SetCursorPosition(0, topOffset + actionIndex);
-            Console.Write($"{actionIndex + 1}." + OptionsList.ElementAt(actionIndex) + "<");
-            Console.ResetColor();
-        }
-        internal static void DeselectCurrentAdminActionAt(int topOffset, int actionIndex = 0)
-        {
-            Console.ResetColor();
-            Console.SetCursorPosition(0, topOffset + actionIndex);
-            Console.Write($"{actionIndex + 1}." + OptionsList.ElementAt(actionIndex) + "<");
-        }
-        */
         internal static void SelectCurrentProductAt(int productIndex, int categoryIndex)
         {
             Console.BackgroundColor = ConsoleColor.White;
@@ -65,7 +50,6 @@ namespace Fit4Life.Views
             Console.CursorLeft = 0;
             PrintProductByIndex(productIndex, categoryIndex);
         }
-
 
         /// <summary>
         /// Prints a product from already fetched lists (product and category indexes required)
@@ -108,7 +92,6 @@ namespace Fit4Life.Views
                     break;
             }
         }
-
 
         internal static void PrintSupplement(Supplements supplement, bool printForCart = false)
         {

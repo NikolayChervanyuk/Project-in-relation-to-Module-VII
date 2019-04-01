@@ -40,11 +40,16 @@ namespace Fit4Life.Extentions
 
         internal static void PrintMainPageHeadder()
         {
-            Console.WriteLine(HorizontalLine('-', 23));
+            DrawVerticalLine('|', '+', 4);
+            Console.Write(HorizontalLine('-', '+', 24));
+            Console.CursorLeft--;
+            DrawVerticalLine('|', '+', 4);
+            Console.WriteLine();
             ShiftText(5);
             Console.WriteLine("<|Fit 4 Life|>");
+            ShiftText(1);
             Console.WriteLine("Welcome to our shop!");
-            Console.WriteLine(HorizontalLine('-', 23));
+            Console.WriteLine(HorizontalLine('-','+', 24));
             ObjectSelections.TopOffset = Console.CursorTop;
             ObjectSelections.LeftOffset = Console.CursorLeft;
         }
@@ -52,10 +57,10 @@ namespace Fit4Life.Extentions
         {
             Console.WriteLine("Navigation:\nArrows up/down - scroll \nEnter - add to cart\t  Esc - return to main menu");
             Console.WriteLine($"\nShopping cart: {shoppingCartTotal:f2}bgn");
-            Console.WriteLine(HorizontalLine('-', 100));
+            Console.WriteLine(HorizontalLine('-', '▼', 100));
             ShiftText(45);
             Console.WriteLine(ObjectSelections.OptionsList[optionIndex]);
-            Console.WriteLine(HorizontalLine('-', 100));
+            Console.WriteLine(HorizontalLine('-', '▲', 100));
             ObjectSelections.TopOffset = Console.CursorTop;
             ObjectSelections.LeftOffset = Console.CursorLeft;
         }
@@ -365,14 +370,31 @@ namespace Fit4Life.Extentions
         /// <summary>
         /// Returns a horizontal line.
         /// </summary>
-        internal static string HorizontalLine(char character, int lineLenght)
+        internal static string HorizontalLine(char character, char endingsChar, int lineLenght)
         {
             char[] charactersLine = new char[lineLenght];
-            for (int i = 0; i < lineLenght; i++)
+            charactersLine[0] = endingsChar;
+            for (int i = 1; i < lineLenght - 1; i++)
             {
                 charactersLine[i] = character;
             }
+            charactersLine[lineLenght-1] = endingsChar;
             return string.Concat(charactersLine);
+        }
+        internal static void  DrawVerticalLine(char character, char endingsChar, int lineLenght)
+        {
+            int cursorPos_X = Console.CursorLeft;
+            int cursorPos_Y = Console.CursorTop;
+            Console.Write(endingsChar);
+            Console.CursorLeft--;
+            for (int i = 1; i < lineLenght; i++)
+            {
+                Console.SetCursorPosition(cursorPos_X, cursorPos_Y + i);
+                Console.Write(character);
+            }
+            Console.CursorLeft--;
+            Console.Write(endingsChar);
+            Console.SetCursorPosition(cursorPos_X, cursorPos_Y);
         }
         /// <param name="clearLine">If true, then clears all chars beforehand.</param>
         internal static void ShiftText(int positions, bool clearLine = false)

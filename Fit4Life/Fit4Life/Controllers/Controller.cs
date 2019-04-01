@@ -14,6 +14,7 @@ namespace Fit4Life.Controllers
     {
         private ShopContext shopContext { get; set; }
 
+        //read
         internal object GetAllBasedOnCategory(int categoryIndex)
         {
             using (shopContext = new ShopContext())
@@ -21,7 +22,43 @@ namespace Fit4Life.Controllers
                 return GetCategoryByIndex(categoryIndex);
             }
         }
+        private object GetCategoryByIndex(int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    return shopContext.Supplements.ToList();
+                case 1:
+                    break;
+                case 2:
+                    return shopContext.Equipment.ToList();
+            }
+            return null;
+        }
+        
+        //create
+        internal void AddProduct(object product, int categoryIndex)
+        {
+            using (shopContext = new ShopContext())
+            {
+                switch (categoryIndex)
+                {
+                    case 0:
+                        Supplements supplement = (Supplements)product;
+                        shopContext.Supplements.Add(supplement);
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        Equipment equipment = (Equipment)product;
+                        shopContext.Equipment.Add(equipment);
+                        break;
+                }
+                shopContext.SaveChanges();
+            }
+        }
 
+        //update
         internal void DecreaseQuantityOf(object product, int quantity = 1)
         {
             using (var shopContext = new ShopContext())
@@ -48,22 +85,7 @@ namespace Fit4Life.Controllers
                 shopContext.SaveChanges();
             }
         }
-
-        private object GetCategoryByIndex(int index)
-        {
-            switch (index)
-            {
-                case 0:
-                    return shopContext.Supplements.ToList();
-                case 1:
-                    break;
-                case 2:
-                    return shopContext.Equipment.ToList();
-            }
-            return null;
-        }
-
-        internal void AddProduct(object product, int categoryIndex)
+        internal void IncreaseQuantityOf(object product, int categoryIndex, int quantity)
         {
             using (shopContext = new ShopContext())
             {
@@ -71,44 +93,28 @@ namespace Fit4Life.Controllers
                 {
                     case 0:
                         Supplements supplement = (Supplements)product;
-                        shopContext.Supplements.Add(supplement);
-                        break;
-                    case 1:
-                        break;
-                    case 2:
-                        Equipment equipment = (Equipment)product;
-                        shopContext.Equipment.Add(equipment);
-                        break;
-                }
-
-            }
-        }
-
-        internal void RestockProduct(object product, int categoryIndex, int quantity)
-        {
-            using (shopContext = new ShopContext())
-            {
-                switch (categoryIndex)
-                {
-                    case 0:
-                        Supplements supplement = (Supplements)product;
-                        supplement.Quantity += quantity;
                         Supplements supplementToReplace = shopContext.Supplements.Find(supplement.Id);
-                        
-                        shopContext.Entry(supplementToReplace).CurrentValues.SetValues(supplement);
+                        supplement.Quantity += quantity;
+                        shopContext.Entry(supplementToReplace).Entity.Quantity = supplement.Quantity;
                         break;
                     case 1:
                         break;
                     case 2:
                         Equipment equipment = (Equipment)product;
-                        equipment.Quantity += quantity;
                         Equipment equipmentToReplace = shopContext.Equipment.Find(equipment.Id);
-
-                        shopContext.Entry(equipmentToReplace).CurrentValues.SetValues(equipment);
+                        equipment.Quantity += quantity;
+                        shopContext.Entry(equipmentToReplace).Entity.Quantity = equipment.Quantity;
                         break;
                 }
             }
         }
+
+        //delete
+        internal void DeleteProduct(object product, int index)
+        {
+
+        }
+
         /*public void TransferFromShopToCart(int id, int quantity, int index)
         {
             using (shopContext = new ShopContext())

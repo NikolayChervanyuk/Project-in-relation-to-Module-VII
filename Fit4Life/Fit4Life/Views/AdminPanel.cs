@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Threading;
 namespace Fit4Life.Views
 {
     internal class AdminPanel
@@ -16,6 +16,9 @@ namespace Fit4Life.Views
         int pickedActionIndex = -1;
         private string adminPassword = "a";
 
+        /// <summary>
+        /// Requests for password. If the user enters correct password, then the method returns true, otherwise false.
+        /// </summary>
         internal bool IsAccessGained()
         {
             List<string> passwordEntered = null;
@@ -129,16 +132,17 @@ namespace Fit4Life.Views
                 switch (pickedActionIndex)
                 {
                     case 3://supplement
-                        Supplements supplement;
-                        EnterNewSupplement(out supplement);
+                        Supplements supplement = EnterNewSupplement();
                         if (supplement == null)
                         {
-                            Console.Clear();
                             DisplayInfoMsg("Supplement discarded");
                         }
                         else
                         {
+                            Console.Clear();
+                            Console.WriteLine("Please wait...");
                             controller.AddProduct(supplement, 0);
+                            DisplayInfoMsg("Supplement created successfully!", 1800);
                         }
                         break;
                     case 4://drink
@@ -156,116 +160,135 @@ namespace Fit4Life.Views
         /// If the method is terminated via pressing the Escape key,then the supplement equals null.
         /// </summary>
         /// <param name="supplement"></param>
-        private void EnterNewSupplement(out Supplements supplement)
+        private Supplements EnterNewSupplement()
         {
-            supplement = new Supplements();
+            Supplements supplement = new Supplements();
             int maxNameLenght = 32;
             int maxBrandLenght = 18;
             int maxPriceValue = 99999;
             int maxWeightGrams = 99999;
-            int doseFromWeight = 20;
-            int maxQuantity = 9999;
+            int maxDoseStringLenght = 20;
             bool isEscapeKeyPressed = false;
-            bool isValid = true;
             //Name check
             do
             {
-                List<string> sName = new List<string>();
-                if (!isValid)
-                {
-                    DisplayErrorMsg("Name too long or blank!");
-                }
                 Console.Write("Supplemnt name(not empty and no more than 32 symbols):");
-                EnterField(out sName, out isEscapeKeyPressed);
-                if (isEscapeKeyPressed)
-                {
-                    supplement = null;
-                    return;
-                }
-                if (sName.Count <= 0 || sName.Count > maxNameLenght)
-                {
-                    isValid = false;
-                }
-                else
+                List<string> sName = EnterField(out isEscapeKeyPressed);
+                if (isEscapeKeyPressed) return null;
+                if (sName.Count > 0 && sName.Count <= maxNameLenght)
                 {
                     supplement.Name = string.Join("", sName);
                     break;
                 }
+                DisplayErrorMsg("Name too long or blank!", 2000);
             } while (true);
             Console.Clear();
 
             //Brand check
-            isValid = true;
             do
             {
-                if (!isValid)
-                {
-                    DisplayErrorMsg("Brand name too long or blank!", 2200);
-                }
                 Console.Write("Supplement brand(no more than 20 symbols):");
-                List<string> sBrand = new List<string>();
-                EnterField(out sBrand, out isEscapeKeyPressed);
-                if (isEscapeKeyPressed)
-                {
-                    supplement = null;
-                    return;
-                }
-                if (sBrand.Count <= 0 || sBrand.Count > maxBrandLenght)
-                {
-                    isValid = false;
-                }
-                else
+                List<string> sBrand = EnterField(out isEscapeKeyPressed);
+                if (isEscapeKeyPressed) return null;
+                if (sBrand.Count > 0 && sBrand.Count <= maxBrandLenght)
                 {
                     supplement.Brand = string.Join("", sBrand);
                     break;
                 }
+                DisplayErrorMsg("Brand name too long or blank!", 2200);
+
             } while (true);
             Console.Clear();
-            
-            //Price check
-            isValid = true;
+
+            //Price check 
             do
             {
                 Console.Write($"Supplement price(max value is {maxPriceValue}):");
-                List<string> PriceString;
-                EnterField(out PriceString, out isEscapeKeyPressed);
-                if(isEscapeKeyPressed)
-                {
-                    supplement = null;
-                    return;
-                }
+                List<string> PriceString = EnterField(out isEscapeKeyPressed);
+                if (isEscapeKeyPressed) return null;
                 string priceString = "";
-                foreach (string item in PriceString)
-                {
-                    priceString += item;
-                }
+                foreach (string character in PriceString) priceString += character;
                 decimal price;
                 bool isDecimal = decimal.TryParse(priceString, out price);
-                if (!(isValid && isDecimal))
+                if (isDecimal)
                 {
-                    DisplayErrorMsg("Invalid price format or !", 2500);
+                    if (price < 0) DisplayErrorMsg("Price cannot be negative!", 2000);
+                    if (price >= 0 && price <= maxPriceValue)
+                    {
+                        supplement.Price = price;
+                        break;
+                    }
+                    if (price > maxPriceValue) DisplayErrorMsg("Price value overreached max value!", 2000);
                 }
-                else
-                {
-                    supplement.Price = price;
-                    break;
-                }
+                else DisplayErrorMsg("Invalid price format or blank!", 2000);
             } while (true);
-
-            //Weight check
-            isValid = true;
+            Console.Clear();
+            
+            //Weight check 
             do
             {
-
+                Console.Write($"Enter weight in grams(max weight is {maxWeightGrams}):");
+                List<string> WeightString = EnterField(out isEscapeKeyPressed);
+                if (isEscapeKeyPressed)
+                {
+                    supplement = null;
+                    return null;
+                }
+                string weightString = "";
+                foreach (string character in WeightString)
+                {
+                    weightString += character;
+                }
+                int weight;
+                bool isInt = int.TryParse(weightString, out weight);
+                if (isInt)
+                {
+                    if (weight <= 0) DisplayErrorMsg("Weight should be positive");
+                    if (weight > 0 && weight <= maxWeightGrams)
+                    {
+                        supplement.Weight = weightString + "g";
+                        Console.Clear();
+                        do
+                        {
+                            Console.Write($"Additional dosage info(optional,max lenght {maxDoseStringLenght}):");
+                            List<string> DosageString = EnterField(out isEscapeKeyPressed);
+                            if (isEscapeKeyPressed) return null;
+                            if (DosageString.Count == 0) break;
+                            supplement.Weight += ", ";
+                            string dosageString = "";
+                            foreach (var character in DosageString)
+                            {
+                                dosageString += character;
+                            }
+                            if (dosageString.Length > maxDoseStringLenght)
+                            {
+                                DisplayErrorMsg("Dosage info too long!", 1800);
+                                continue;
+                            }
+                            supplement.Weight += dosageString;
+                            break;
+                        } while (true);
+                        break;
+                    }
+                    if (weight > maxWeightGrams) DisplayErrorMsg("Weight value overreached max value!", 2500);
+                }
+                else DisplayErrorMsg("Invalid weight format or blank!", 1800);
             } while (true);
-
+            supplement.Quantity = 0;
+            supplement.Category_id = 1;
+            return supplement;
         }
 
-        private void EnterField(out List<string> fieldName, out bool isEscapeKeyPressed)
+
+        /// <summary>
+        /// Returns a list of user-entered characters. If Escape key is pressed, then isEscapeKeyPressed equals true.
+        /// </summary>
+        private List<string> EnterField(out bool isEscapeKeyPressed)
         {
+
             int index = 0;
             string symbolEntered;
-            fieldName = new List<string>();
+            List<string> fieldName = new List<string>();
             isEscapeKeyPressed = false;
             ConsoleKeyInfo key = new ConsoleKeyInfo();
             do
@@ -274,7 +297,7 @@ namespace Fit4Life.Views
                 if (key.Key == ConsoleKey.Escape)
                 {
                     isEscapeKeyPressed = true;
-                    return;
+                    return null;
                 }
                 if (key.Key == ConsoleKey.Backspace)
                 {
@@ -285,42 +308,44 @@ namespace Fit4Life.Views
                         fieldName.RemoveAt(--index);
                     }
                     else Console.CursorLeft++;
+                    continue;
                 }
-                else if(key.Key != ConsoleKey.Enter)
+                if (key.Key != ConsoleKey.Enter)
                 {
                     symbolEntered = Convert.ToString(key.KeyChar);
                     fieldName.Add(Convert.ToString(symbolEntered));
                     index++;
                 }
             } while (key.Key != ConsoleKey.Enter);
+            return fieldName;
         }
 
         internal void PrintAdminPageHeadder()
         {
             Console.Clear();
-            Console.WriteLine("+" + GInterface.HorizontalLine('-', 17) + "+");
+            Console.WriteLine("+" + GInterface.HorizontalLine('-', '-', 17) + "+");
             Console.WriteLine("|-<Welcome admin>-|");
-            Console.WriteLine("+" + GInterface.HorizontalLine('~', 17) + "+");
+            Console.WriteLine("+" + GInterface.HorizontalLine('~', '~', 17) + "+");
         }
-        private void DisplayInfoMsg(string infoMessage, int timeout = 1000)
+        private void DisplayInfoMsg(string infoMessage, int timeoutInMiliseconds = 1000)
         {
             Console.Clear();
-            Console.WriteLine(GInterface.HorizontalLine('x', infoMessage.Length));
+            Console.WriteLine(GInterface.HorizontalLine('x', 'x', infoMessage.Length));
             InformingConsoleColor();
             Console.Write(infoMessage);
-            System.Threading.Thread.Sleep(timeout);
+            System.Threading.Thread.Sleep(timeoutInMiliseconds);
             Console.ResetColor();
             Console.CursorLeft = 0;
             GInterface.DeleteRow();
             Console.Clear();
         }
-        private void DisplayErrorMsg(string errorMessage, int timeout = 1000)
+        private void DisplayErrorMsg(string errorMessage, int timeoutInMiliseconds = 1000)
         {
             Console.Clear();
-            Console.WriteLine(GInterface.HorizontalLine('x', errorMessage.Length));
+            Console.WriteLine(GInterface.HorizontalLine('x', 'x', errorMessage.Length));
             WarningConsoleColor();
             Console.Write(errorMessage);
-            System.Threading.Thread.Sleep(timeout);
+            System.Threading.Thread.Sleep(timeoutInMiliseconds);
             Console.ResetColor();
             Console.CursorLeft = 0;
             GInterface.DeleteRow();
@@ -336,11 +361,9 @@ namespace Fit4Life.Views
             Console.BackgroundColor = ConsoleColor.Blue;
             Console.ForegroundColor = ConsoleColor.White;
         }
-
         public AdminPanel()
         {
             controller = new Controller();
         }
-
     }
 }
