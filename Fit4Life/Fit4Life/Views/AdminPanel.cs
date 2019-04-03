@@ -120,15 +120,18 @@ namespace Fit4Life.Views
             //Restock action
             if (pickedActionIndex >= 0 && pickedActionIndex <= 2)
             {
+                GInterface.SetWindowSize(GInterface.productPageWindowSize[0], GInterface.productPageWindowSize[1]);
                 switch (pickedActionIndex)
                 {
                     case 0://supplement
-                        PrintRestockPageHeadder();
-                        
+                        PrintRestockPageHeadder(GInterface.SupplementsList[0].GetType().Name.ToString(), GInterface.SupplementsList.Count);
+                        SelectSupplementForRestock();
                         break;
                     case 1://drink
                         break;
                     case 2://equipment
+                        PrintRestockPageHeadder(GInterface.EquipmentsList[0].GetType().Name.ToString(), GInterface.EquipmentsList.Count);
+                        SelectEquipmentForRestock();
                         break;
                 }
             }
@@ -179,8 +182,7 @@ namespace Fit4Life.Views
                         SelectSupplementForDeletion();
                         break;
                     case 7:
-                        DrawRedFrame(101, GInterface.SupplementsList.Count + 2, true, 'X', 'x');
-                        //SelectDrinkForDeletion();
+                        
                         break;
                     case 8:
                         PrintDeletionPageHeadder(GInterface.EquipmentsList[0].GetType().Name.ToString(), GInterface.EquipmentsList.Count);
@@ -193,9 +195,195 @@ namespace Fit4Life.Views
             return;
         }
 
-        private void PrintRestockPageHeadder()
+        private void SelectSupplementForRestock()
         {
-            throw new NotImplementedException();
+            GInterface.SetWindowSize(GInterface.productPageWindowSize[0], GInterface.productPageWindowSize[1]);
+            int categoryIndex = 0;
+            ObjectSelections.TopOffset = Console.CursorTop;
+            GInterface.PrintProductsFormated(categoryIndex);
+            ConsoleKeyInfo key = new ConsoleKeyInfo();
+            int supplementIndex = 0;
+            int listLenght = GInterface.SupplementsList.Count;
+            ObjectSelections.SelectCurrentProductAt(supplementIndex, categoryIndex);
+            //Console.CursorVisible = false;
+            do
+            {
+                key = Console.ReadKey(true);
+                switch (key.Key)
+                {
+                    case ConsoleKey.DownArrow://select next product
+                        ObjectSelections.DeselectCurrentProductAt(supplementIndex, categoryIndex);
+                        if (supplementIndex + 1 >= listLenght)
+                        {
+                            supplementIndex = (supplementIndex % (listLenght - 1)) - 1;
+                        }
+                        ObjectSelections.SelectCurrentProductAt(++supplementIndex, categoryIndex);
+                        break;
+                    case ConsoleKey.UpArrow://select previous product
+                        ObjectSelections.DeselectCurrentProductAt(supplementIndex, categoryIndex);
+                        if (supplementIndex - 1 < 0)
+                        {
+                            supplementIndex = listLenght;
+                        }
+                        ObjectSelections.SelectCurrentProductAt(--supplementIndex, categoryIndex);
+                        break;
+                    case ConsoleKey.Enter:
+                        RestockSelectedProduct(GInterface.SupplementsList[supplementIndex], supplementIndex, categoryIndex);
+                        ObjectSelections.SelectCurrentProductAt(supplementIndex, categoryIndex);
+                        break;
+                }
+            } while (key.Key != ConsoleKey.Escape);
+            return;
+
+        }
+
+        private void SelectEquipmentForRestock()
+        {
+            GInterface.SetWindowSize(GInterface.productPageWindowSize[0], GInterface.productPageWindowSize[1]);
+            int categoryIndex = 2;
+            ObjectSelections.TopOffset = Console.CursorTop;
+            GInterface.PrintProductsFormated(categoryIndex);
+            ConsoleKeyInfo key = new ConsoleKeyInfo();
+            int equipmentIndex = 0;
+            int listLenght = GInterface.EquipmentsList.Count;
+            ObjectSelections.SelectCurrentProductAt(equipmentIndex, categoryIndex);
+            //Console.CursorVisible = false;
+            do
+            {
+                key = Console.ReadKey(true);
+                switch (key.Key)
+                {
+                    case ConsoleKey.DownArrow://select next product
+                        ObjectSelections.DeselectCurrentProductAt(equipmentIndex, categoryIndex);
+                        if (equipmentIndex + 1 >= listLenght)
+                        {
+                            equipmentIndex = (equipmentIndex % (listLenght - 1)) - 1;
+                        }
+                        ObjectSelections.SelectCurrentProductAt(++equipmentIndex, categoryIndex);
+                        break;
+                    case ConsoleKey.UpArrow://select previous product
+                        ObjectSelections.DeselectCurrentProductAt(equipmentIndex, categoryIndex);
+                        if (equipmentIndex - 1 < 0)
+                        {
+                            equipmentIndex = listLenght;
+                        }
+                        ObjectSelections.SelectCurrentProductAt(--equipmentIndex, categoryIndex);
+                        break;
+                    case ConsoleKey.Enter:
+                        RestockSelectedProduct(GInterface.EquipmentsList[equipmentIndex], equipmentIndex, categoryIndex);
+                        ObjectSelections.SelectCurrentProductAt(equipmentIndex, categoryIndex);
+                        break;
+                }
+            } while (key.Key != ConsoleKey.Escape);
+            return;
+        }
+
+        private void RestockSelectedProduct(object product, int productIndex, int categoryIndex)
+        {
+            int maxQuantityValue = 99999999;
+            AwaitInputForQuantityBox();
+            Console.ResetColor();
+            //After executing the program lines above, the cursor is set below the product in a box
+            int quantityToAdd;
+            switch (categoryIndex)
+            {
+                case 0:
+                    Supplements supplement = (Supplements)product;
+                    Shapes.WriteBottomRestockInfo(product, categoryIndex);
+                    quantityToAdd = int.Parse(NumberInput(1, maxQuantityValue, "int", false, "", 8).ToString());
+                    Shapes.ShowFinalRestockInfo(product, categoryIndex, quantityToAdd);
+                    if (IsConfirmedRestockAction())
+                    {
+                        controller.IncreaseQuantityOf(supplement, categoryIndex, quantityToAdd);
+                        GInterface.SupplementsList = (List<Supplements>)GInterface.GetCategorizedList(categoryIndex, controller);
+                        DisplayInfoMsg("Supplement restocked successfully!", 1500);
+                    }
+                    else DisplayInfoMsg("Restock action cancelled", 1200);
+                    PrintRestockPageHeadder(supplement.GetType().Name.ToString(), GInterface.SupplementsList.Count);
+                    GInterface.PrintProductsFormated(categoryIndex);
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    Equipment equipment = (Equipment)product;
+                    Shapes.WriteBottomRestockInfo(product, categoryIndex);
+                    quantityToAdd = int.Parse(NumberInput(1, maxQuantityValue, "int", false, "", 8).ToString());
+                    Shapes.ShowFinalRestockInfo(product, categoryIndex, quantityToAdd);
+                    if (IsConfirmedRestockAction())
+                    {
+                        controller.IncreaseQuantityOf(equipment, categoryIndex, quantityToAdd);
+                        GInterface.EquipmentsList = (List<Equipment>)GInterface.GetCategorizedList(categoryIndex, controller);
+                        DisplayInfoMsg("Equipment restocked successfully!", 1500);
+                    }
+                    else DisplayInfoMsg("Restock action cancelled", 1200);
+                    PrintRestockPageHeadder(equipment.GetType().Name.ToString(), GInterface.SupplementsList.Count);
+                    GInterface.PrintProductsFormated(categoryIndex);
+                    break;
+            }
+            ObjectSelections.SelectCurrentProductAt(productIndex, categoryIndex);
+            //Thread.Sleep(1000);
+            Console.ResetColor();
+            return;
+        }
+
+        private bool IsConfirmedRestockAction()
+        {
+            ConsoleKeyInfo key;
+            do
+            {
+                key = Console.ReadKey(true);
+                switch (key.KeyChar.ToString().ToLower())
+                {
+                    case "y": return true;
+                    case "n": return false;
+                }
+            } while (key.Key != ConsoleKey.Escape);
+            return false;
+        }
+
+        
+
+        private void AwaitInputForQuantityBox(int flashTimes = 2)
+        {
+            int[] initialCursorPos = { Console.CursorLeft, Console.CursorTop };
+            Console.BackgroundColor = ConsoleColor.DarkBlue;
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.CursorLeft = 0;
+            Console.Write(GInterface.HorizontalLine(' ', ' ', 100));
+            Console.CursorLeft = 45;
+            Console.Write($"<<<Selected>>>");
+
+            int topOffset = ObjectSelections.TopOffset + GInterface.SupplementsList.Count + 2; // <<<works???
+            int leftOffset = Console.CursorLeft = 0;
+            Console.SetCursorPosition(leftOffset, topOffset - 1);
+            Console.WriteLine(GInterface.HorizontalLine('=', '=', 101));
+            for (int i = 0; i < flashTimes; i++)
+            {
+                Console.BackgroundColor = ConsoleColor.Gray;
+                Console.ForegroundColor = ConsoleColor.Black;
+                DrawRestockProductFram(leftOffset, topOffset);
+                Thread.Sleep(200);
+                Console.ResetColor();
+                DrawRestockProductFram(leftOffset, topOffset);
+                if (Console.KeyAvailable) break;
+                Thread.Sleep(200);
+            }
+            Console.CursorLeft++;
+            Console.CursorTop++;
+            return;
+        }
+
+        private void DrawRestockProductFram(int leftOffset, int topOffset)
+        {
+            Console.Write(GInterface.HorizontalLine('-', '#', 101));
+            Console.CursorLeft--;
+            Console.CursorTop++;
+            Console.WriteLine('<');
+            Console.Write(GInterface.HorizontalLine('-', '#', 101));
+            Console.CursorTop--;
+            Console.CursorLeft = leftOffset;
+            Console.Write('>');
+            Console.SetCursorPosition(leftOffset, topOffset);
         }
 
         private void SelectEquipmentForDeletion()
@@ -240,18 +428,11 @@ namespace Fit4Life.Views
                             controller.DeleteProduct(GInterface.EquipmentsList[equipmentIndex], categoryIndex);
                             DisplayInfoMsg("Deletion complete successfully!", 2200);
                             GInterface.EquipmentsList = GInterface.GetCategorizedList(categoryIndex, controller);
-                            listLenght--;
+                            if (equipmentIndex >= --listLenght) equipmentIndex--;
                             PrintDeletionPageHeadder(GInterface.EquipmentsList[0].GetType().Name.ToString(), listLenght);
-                            DrawRedFrame(101, GInterface.EquipmentsList.Count + 2, true, 'X', 'x');
                             GInterface.PrintProductsFormated(categoryIndex);
-                            if (equipmentIndex >= listLenght) equipmentIndex--;
-                            ObjectSelections.SelectCurrentProductAt(equipmentIndex, categoryIndex);
                         }
-                        else
-                        {
-                            GInterface.PrintProductsFormated(categoryIndex);
-                            ObjectSelections.SelectCurrentProductAt(equipmentIndex, categoryIndex);
-                        }
+                        ObjectSelections.SelectCurrentProductAt(equipmentIndex, categoryIndex);
                         key = new ConsoleKeyInfo();
                         break;
                 }
@@ -301,18 +482,11 @@ namespace Fit4Life.Views
                             controller.DeleteProduct(GInterface.SupplementsList[supplementIndex], categoryIndex);
                             DisplayInfoMsg("Deletion complete successfully!", 2200);
                             GInterface.SupplementsList = GInterface.GetCategorizedList(categoryIndex, controller);
-                            listLenght--;
+                            if (supplementIndex >= --listLenght) supplementIndex--;
                             PrintDeletionPageHeadder(GInterface.SupplementsList[0].GetType().Name.ToString(), listLenght);
                             GInterface.PrintProductsFormated(categoryIndex);
-                            if (supplementIndex >= listLenght) supplementIndex--;
-                            ObjectSelections.SelectCurrentProductAt(supplementIndex, categoryIndex);
                         }
-                        else
-                        {
-                            GInterface.PrintProductsFormated(categoryIndex);
-                            ObjectSelections.SelectCurrentProductAt(supplementIndex, categoryIndex);
-
-                        }
+                        ObjectSelections.SelectCurrentProductAt(supplementIndex, categoryIndex);
                         key = new ConsoleKeyInfo();
                         break;
                 }
@@ -320,43 +494,29 @@ namespace Fit4Life.Views
             return;
         }
 
+        private void PrintRestockPageHeadder(string nameOfCategory, int height)
+        {
+            Console.Clear();
+            Console.WriteLine(GInterface.HorizontalLine('-', '*', 100));
+            GInterface.ShiftText(37);
+            Console.WriteLine($"{nameOfCategory}s to restock:");
+            Console.WriteLine(GInterface.HorizontalLine('-', '*', 100));
+            Shapes.DrawFrame(101, height + 2, true, '#', '+', "blue");
+        }
         private void PrintDeletionPageHeadder(string nameOfCategory, int height)
         {
             Console.WriteLine(GInterface.HorizontalLine('-', '*', 100));
             GInterface.ShiftText(37);
             Console.WriteLine($"{nameOfCategory}s for deletion:");
             Console.WriteLine(GInterface.HorizontalLine('-', '*', 100));
-            DrawRedFrame(101, height + 2, true, 'X', 'x');
+            Shapes.DrawFrame(101, height + 2, true, 'X', 'x', "red");
         }
 
         /// <summary>
-        /// Draws a frame. If resetCursor is true, then cursor is set to it's initial position, 
-        /// else it stays to it's last position.
+        /// Draws a frame. If resetCursor is true, then cursor is set to it's initial position - else it stays to it's last position.
+        /// Available values for frameColour are: 'red', 'green', 'blue', 'white' and vanila.
         /// </summary>
-        private void DrawRedFrame(int width, int height, bool resetCursos = false, char edges = ' ', char character = ' ')
-        {
-            WarningConsoleColor();
-            int[] cursorPosition = { Console.CursorLeft, Console.CursorTop + 1 };
-            Console.Write(GInterface.HorizontalLine(character, edges, width));
-            Console.CursorLeft--;
-            GInterface.DrawVerticalLine(character, edges, height);
-            Console.CursorLeft = 0;
-            Console.WriteLine(GInterface.HorizontalLine(character, edges, width));
-            if (resetCursos) Console.SetCursorPosition(cursorPosition[0], cursorPosition[1]);
-            Console.ResetColor();
-        }
-
-        private void ShowDeletionConfirmationMsg(int productIndex)
-        {
-            Console.BackgroundColor = ConsoleColor.Red;
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.CursorTop = ObjectSelections.TopOffset + productIndex;
-            Console.CursorLeft = 0;
-            GInterface.ShiftText(16, true);
-            Console.Write("Are you sure you want to delete this product?(Press Enter to confirm)");
-            Console.Write(new string(' ', 15));
-            Console.ResetColor();
-        }
+     
 
         /// <summary>
         /// Creates new supplement by entering the properties of supplement.
@@ -375,32 +535,35 @@ namespace Fit4Life.Views
             int maxWeightGrams = 99999;
             int minDoseStringLenght = 0;
             int maxDoseStringLenght = 20;
-            string description = $"Enter supplement name(max lenght {maxNameLenght})";
+            string description = $"Enter supplement name(max lenght {maxNameLenght}):";
             supplement.Name = StringInput(minNameLenght, maxNameLenght, description);
             if (supplement.Name == null) return null;
             Console.Clear();
 
-            description = $"Enter supplement brand(max lenght {maxBrandLenght})";
+            description = $"Enter supplement brand(max lenght {maxBrandLenght}):";
             supplement.Brand = StringInput(minBrandLenght, maxBrandLenght, description);
 
             if (supplement.Brand == null) return null;
             Console.Clear();
 
-            description = $"Enter price(max value {maxPriceValue})";
-            supplement.Price = decimal.Parse(NumberInput(minPriceValue, maxPriceValue, "decimal", description).ToString());
+            description = $"Enter price(max value {maxPriceValue}):";
+            supplement.Price = decimal.Parse(NumberInput(minPriceValue, maxPriceValue, "decimal", true, description).ToString());
             if (supplement.Price < 0) return null;
             Console.Clear();
 
-            description = $"Enter weight (max weight {maxWeightGrams})";
-            supplement.Weight = NumberInput(minWeightGrams, maxWeightGrams, "int", description).ToString();
-            if (supplement.Weight == null) return null;
+            description = $"Enter weight in grams(max weight {maxWeightGrams}):";
+            supplement.Weight = NumberInput(minWeightGrams, maxWeightGrams, "int", true, description).ToString();
+            if (supplement.Weight == "-1") return null;
             supplement.Weight += "g";
+            Console.Clear();
 
-            description = $"Enter dose info (max lenght {maxDoseStringLenght}, optional)";
+            description = $"Enter dose info (max lenght {maxDoseStringLenght}, optional):";
             string doseInfo = StringInput(minDoseStringLenght, maxDoseStringLenght, description);
-            supplement.Weight += ", " + doseInfo;
+            if (doseInfo == null) return null;
             supplement.Quantity = 0;
             supplement.Category_id = 1; //<<< remove?
+            if (doseInfo.Equals("")) return supplement;
+            supplement.Weight += ", " + doseInfo;
             return supplement;
         }
         /// <summary>
@@ -424,18 +587,18 @@ namespace Fit4Life.Views
             int maxBrandLenght = 24;
             decimal minPriceValue = 0.001m;
             decimal maxPriceValue = 99999m;
-            string description = $"Enter equipment name(max lenght {maxNameLenght})";
+            string description = $"Enter equipment name(max lenght {maxNameLenght}):";
             equipment.Name = StringInput(minNameLenght, maxNameLenght, description);
             if (equipment.Name == null) return null;
             Console.Clear();
 
-            description = $"Enter equipment brand(max lenght {maxBrandLenght})";
+            description = $"Enter equipment brand(max lenght {maxBrandLenght}):";
             equipment.Brand = StringInput(minBrandLenght, maxBrandLenght, description);
             if (equipment.Brand == null) return null;
             Console.Clear();
 
-            description = $"Enter price(max value {maxPriceValue})";
-            equipment.Price = decimal.Parse(NumberInput(minPriceValue, maxPriceValue, "decimal", description).ToString());
+            description = $"Enter price(max value {maxPriceValue}):";
+            equipment.Price = decimal.Parse(NumberInput(minPriceValue, maxPriceValue, "decimal", true, description).ToString());
             if (equipment.Price < 0) return null;
             Console.Clear();
 
@@ -444,141 +607,54 @@ namespace Fit4Life.Views
             return equipment;
         }
 
-
-        ///<summary>
-        ///   do
-        ///   {
-        ///       Console.Write("Supplemnt name(not empty and no more than 32 symbols):");
-        ///       List<string> sName = EnterField(out isEscapeKeyPressed);
-        ///       if (isEscapeKeyPressed) return supplement = null;
-        ///       if (sName.Count > 0 && sName.Count <= maxNameLenght)
-        ///       {
-        ///           supplement.Name = string.Join("", sName);
-        ///           break;
-        ///       }
-        ///       DisplayErrorMsg("Name too long or blank!", 2000);
-        ///   } while (true);
-        ///   Console.Clear();
-        ///   //Brand check
-        ///   do
-        ///   {
-        ///       Console.Write("Supplement brand(no more than 20 symbols):");
-        ///       List<string> sBrand = EnterField(out isEscapeKeyPressed);
-        ///       if (isEscapeKeyPressed) return null;
-        ///       if (sBrand.Count > 0 && sBrand.Count <= maxBrandLenght)
-        ///       {
-        ///           supplement.Brand = string.Join("", sBrand);
-        ///           break;
-        ///       }
-        ///       DisplayErrorMsg("Brand name too long or blank!", 2200);
-        ///
-        ///   } while (true);
-        ///   Console.Clear();
-        ///
-        ///   //Price check 
-        ///   do
-        ///   {
-        ///       Console.Write($"Supplement price(max value is {maxPriceValue}):");
-        ///       List<string> PriceString = EnterField(out isEscapeKeyPressed);
-        ///       if (isEscapeKeyPressed) return null;
-        ///       string priceString = "";
-        ///       foreach (string character in PriceString) priceString += character;
-        ///       decimal price;
-        ///       bool isDecimal = decimal.TryParse(priceString, out price);
-        ///       if (isDecimal)
-        ///       {
-        ///           if (price < 0) DisplayErrorMsg("Price cannot be negative!", 2000);
-        ///           if (price >= 0 && price <= maxPriceValue)
-        ///           {
-        ///               supplement.Price = price;
-        ///               break;
-        ///           }
-        ///           if (price > maxPriceValue) DisplayErrorMsg("Price value overreached max value!", 2000);
-        ///       }
-        ///       else DisplayErrorMsg("Invalid price format or blank!", 2000);
-        ///   } while (true);
-        ///   Console.Clear();
-        ///
-        ///   //Weight check 
-        ///   do
-        ///   {
-        ///       Console.Write($"Enter weight in grams(max weight is {maxWeightGrams}):");
-        ///       List<string> WeightString = EnterField(out isEscapeKeyPressed);
-        ///       if (isEscapeKeyPressed)
-        ///       {
-        ///           supplement = null;
-        ///           return null;
-        ///       }
-        ///       string weightString = "";
-        ///       foreach (string character in WeightString)
-        ///       {
-        ///           weightString += character;
-        ///       }
-        ///       int weight;
-        ///       bool isInt = int.TryParse(weightString, out weight);
-        ///       if (isInt)
-        ///       {
-        ///           if (weight <= 0) DisplayErrorMsg("Weight should be positive");
-        ///           if (weight > 0 && weight <= maxWeightGrams)
-        ///           {
-        ///               supplement.Weight = weightString + "g";
-        ///               Console.Clear();
-        ///               do
-        ///               {
-        ///                   Console.Write($"Additional dosage info(optional,max lenght {maxDoseStringLenght}):");
-        ///                   List<string> DosageString = EnterField(out isEscapeKeyPressed);
-        ///                   if (isEscapeKeyPressed) return null;
-        ///                   if (DosageString.Count == 0) break;
-        ///                   supplement.Weight += ", ";
-        ///                   string dosageString = "";
-        ///                   foreach (var character in DosageString)
-        ///                   {
-        ///                       dosageString += character;
-        ///                   }
-        ///                   if (dosageString.Length > maxDoseStringLenght)
-        ///                   {
-        ///                       DisplayErrorMsg("Dosage info too long!", 1800);
-        ///                       continue;
-        ///                   }
-        ///                   supplement.Weight += dosageString;
-        ///                   break;
-        ///               } while (true);
-        ///               break;
-        ///           }
-        ///           if (weight > maxWeightGrams) DisplayErrorMsg("Weight value overreached max value!", 2500);
-        ///       }
-        ///       else DisplayErrorMsg("Invalid weight format or blank!", 1800);
-        ///   } while (true);
-        ///<summary/>
-
-        private object NumberInput(dynamic minNumberValue, dynamic maxNumberValue, string typeOfnumber, string descriptionInfo = "Number:")
+        /// <summary>
+        /// Returns number from type typeOfNumber within the range of minNumberValue and maxNumberValue.
+        /// The user enters number from the keyboard and if Escape key is pressed, the method returns -1.
+        /// </summary>
+        /// <param name="minNumberValue">Sets lowest value for the number</param>
+        /// <param name="maxNumberValue">Sets highest value for the number</param>
+        /// <param name="typeOfnumber">Defines the number type</param>
+        /// <param name="descriptionInfo">Prints a string before number</param>
+        /// <param name="errorMsg">If set to true, then, when the input is incorrect, the console clears and shows appropriate message</param>
+        /// <returns></returns>
+        private object NumberInput(dynamic minNumberValue, dynamic maxNumberValue, string typeOfnumber, bool errorMsg = true, string descriptionInfo = "", int stringLenght = 255)
         {
 
             bool isEscapeKeyPressed = false;
+            int[] initialCursorPos = { Console.CursorLeft, Console.CursorTop };
             do
             {
-                Console.Write($"{descriptionInfo}:");
-                List<string> PriceString = EnterField(out isEscapeKeyPressed);
+                Console.Write($"{descriptionInfo}");
+                List<string> PriceString = EnterField(out isEscapeKeyPressed, stringLenght);
                 if (isEscapeKeyPressed) return -1;
                 string priceString = "";
                 foreach (string character in PriceString) priceString += character;
                 if (IsTypeOfNumberRequested(typeOfnumber, priceString))
                 {
                     dynamic price = GetNumberRequested(typeOfnumber, priceString);
-                    if (price < minNumberValue) DisplayErrorMsg($"Value cannot be less than {minNumberValue}!", 2200);
-                    if (price >= 0 && price <= maxNumberValue) return price;
-                    if (price > maxNumberValue) DisplayErrorMsg($"Max value overreached!", 2000);
+                    if (price < minNumberValue && errorMsg) DisplayErrorMsg($"Value cannot be less than {minNumberValue}!", 2200);
+                    if (price > 0 && price <= maxNumberValue) return price;
+                    if (price > maxNumberValue && errorMsg) DisplayErrorMsg($"Max value overreached!", 2000);
                 }
-                else DisplayErrorMsg($"Invalid number format or blank!", 2000);
+                else if (errorMsg) DisplayErrorMsg($"Invalid number format or blank!", 2000);
+                if (errorMsg == false)
+                {
+                    while (Console.CursorLeft > initialCursorPos[0])
+                    {
+                        Console.CursorLeft--;
+                        Console.Write(' ');
+                        Console.CursorLeft--;
+                    }
+                }
             } while (true);
         }
 
-        private string StringInput(int minStringLenght, int maxStringLenght, string descriptionInfo = "String")
+        private string StringInput(int minStringLenght, int maxStringLenght, string descriptionInfo = "")
         {
             bool isEscapeKeyPressed = false;
             do
             {
-                Console.Write($"{descriptionInfo}:");
+                Console.Write($"{descriptionInfo}");
                 List<string> fieldName = EnterField(out isEscapeKeyPressed);
                 if (isEscapeKeyPressed) return null;
                 if (fieldName.Count >= minStringLenght && fieldName.Count <= maxStringLenght)
@@ -589,16 +665,9 @@ namespace Fit4Life.Views
             } while (true);
         }
 
-        internal void PrintAdminPageHeadder()
-        {
-            Console.Clear();
-            Console.WriteLine("+" + GInterface.HorizontalLine('-', '-', 17) + "+");
-            Console.WriteLine("|-<Welcome admin>-|");
-            Console.WriteLine("+" + GInterface.HorizontalLine('~', '~', 17) + "+");
-        }
-
         /// <summary>
-        /// Returns priceString from type, dependent from typeOfnumber.
+        /// Returns numberString in representation type, defined by typeOfnumber.
+        /// Throws exceptions if conversation is not possible.
         /// </summary>
         private dynamic GetNumberRequested(string typeOfnumber, string numberString)
         {
@@ -616,6 +685,63 @@ namespace Fit4Life.Views
         /// <summary>
         ///  Determines wheather numberString can be parsed to typeOfnumber type and reterns true if possible, otherwise false.
         /// </summary>
+        /// <summary>
+        /// Returns a list of user-entered characters. If Escape key is pressed, then isEscapeKeyPressed equals true.
+        /// </summary>
+        private List<string> EnterField(out bool isEscapeKeyPressed, int stringLenght = 255)
+        {
+
+            int index = 0;
+            string symbolEntered;
+            List<string> fieldName = new List<string>();
+            isEscapeKeyPressed = false;
+            ConsoleKeyInfo key = new ConsoleKeyInfo();
+            do
+            {
+                key = Console.ReadKey(true);
+                if (key.Key == ConsoleKey.Escape)
+                {
+                    isEscapeKeyPressed = true;
+                    return null;
+                }
+                if (key.Key == ConsoleKey.Backspace)
+                {
+                    if (index >= 1)
+                    {
+                        Console.CursorLeft--;
+                        Console.Write(' ');
+                        Console.CursorLeft--;
+                        fieldName.RemoveAt(--index);
+                    }
+                    continue;
+                }
+                if (!char.IsControl(key.KeyChar))
+                {
+                    if (index < stringLenght)
+                    {
+                        symbolEntered = Convert.ToString(key.KeyChar);
+                        fieldName.Add(Convert.ToString(symbolEntered));
+                        Console.Write(key.KeyChar);
+                        index++;
+                    }
+                    else
+                    {
+                        string fieldNameInString = "";
+                        foreach (var symbol in fieldName) fieldNameInString += symbol;
+                        if (IsAnyNumber(fieldNameInString))
+                        {
+                            Console.CursorLeft -= index;
+                            for (int i = 0; i < fieldName.Count; i++)
+                            {
+                                fieldName[i] = "9";
+                                Console.Write("9");
+                            }
+                        }
+                    }
+                }
+            } while (key.Key != ConsoleKey.Enter);
+            return fieldName;
+        }
         private bool IsTypeOfNumberRequested(string typeOfnumber, string numberInString)
         {
             switch (typeOfnumber.ToLower())
@@ -639,50 +765,40 @@ namespace Fit4Life.Views
             }
             return false;
         }
-        /// <summary>
-        /// Returns a list of user-entered characters. If Escape key is pressed, then isEscapeKeyPressed equals true.
-        /// </summary>
-        private List<string> EnterField(out bool isEscapeKeyPressed)
+        private bool IsAnyNumber(string stringName)
         {
-
-            int index = 0;
-            string symbolEntered;
-            List<string> fieldName = new List<string>();
-            isEscapeKeyPressed = false;
-            ConsoleKeyInfo key = new ConsoleKeyInfo();
-            do
+            if (IsTypeOfNumberRequested("int", stringName)
+                                || IsTypeOfNumberRequested("double", stringName)
+                                || IsTypeOfNumberRequested("decimal", stringName))
             {
-                key = Console.ReadKey();
-                if (key.Key == ConsoleKey.Escape)
-                {
-                    isEscapeKeyPressed = true;
-                    return null;
-                }
-                if (key.Key == ConsoleKey.Backspace)
-                {
-                    if (index >= 1)
-                    {
-                        Console.Write(' ');
-                        Console.CursorLeft--;
-                        fieldName.RemoveAt(--index);
-                    }
-                    else Console.CursorLeft++;
-                    continue;
-                }
-                if (key.Key != ConsoleKey.Enter)
-                {
-                    symbolEntered = Convert.ToString(key.KeyChar);
-                    fieldName.Add(Convert.ToString(symbolEntered));
-                    index++;
-                }
-            } while (key.Key != ConsoleKey.Enter);
-            return fieldName;
+                return true;
+            }
+            return false;
+
+        }
+        internal void PrintAdminPageHeadder()
+        {
+            Console.Clear();
+            Console.WriteLine("+" + GInterface.HorizontalLine('-', '-', 17) + "+");
+            Console.WriteLine("|-<Welcome admin>-|");
+            Console.WriteLine("+" + GInterface.HorizontalLine('~', '~', 17) + "+");
+        }
+        private void ShowDeletionConfirmationMsg(int productIndex)
+        {
+            Console.BackgroundColor = ConsoleColor.Red;
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.CursorTop = ObjectSelections.TopOffset + productIndex;
+            Console.CursorLeft = 0;
+            GInterface.ShiftText(16, true);
+            Console.Write("Are you sure you want to delete this product?(Press Enter to confirm)");
+            Console.Write(new string(' ', 15));
+            Console.ResetColor();
         }
         private void DisplayInfoMsg(string infoMessage, int timeoutInMiliseconds = 1000)
         {
             Console.Clear();
             Console.WriteLine(GInterface.HorizontalLine('x', 'x', infoMessage.Length));
-            InformingConsoleColor();
+            Shapes.InformingConsoleColor();
             Console.Write(infoMessage);
             System.Threading.Thread.Sleep(timeoutInMiliseconds);
             Console.ResetColor();
@@ -694,7 +810,7 @@ namespace Fit4Life.Views
         {
             Console.Clear();
             Console.WriteLine(GInterface.HorizontalLine('x', 'x', errorMessage.Length));
-            WarningConsoleColor();
+            Shapes.WarningConsoleColor();
             Console.Write(errorMessage);
             System.Threading.Thread.Sleep(timeoutInMiliseconds);
             Console.ResetColor();
@@ -702,20 +818,10 @@ namespace Fit4Life.Views
             GInterface.DeleteRow();
             Console.Clear();
         }
-        private void WarningConsoleColor()
-        {
-            Console.BackgroundColor = ConsoleColor.Red;
-            Console.ForegroundColor = ConsoleColor.White;
-        }
-        private void InformingConsoleColor()
-        {
-            Console.BackgroundColor = ConsoleColor.Blue;
-            Console.ForegroundColor = ConsoleColor.White;
-        }
+        
         public AdminPanel()
         {
             controller = new Controller();
         }
     }
 }
-

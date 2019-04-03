@@ -108,7 +108,6 @@ namespace Fit4Life.Views
             {
                 Console.Write($"Q:{supplement.Quantity}");
             }
-
         }
         internal static void PrintEquipment(Equipment equipment, bool printForCart = false)
         {

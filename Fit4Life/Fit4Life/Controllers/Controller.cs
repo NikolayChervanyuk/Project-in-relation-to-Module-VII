@@ -107,6 +107,7 @@ namespace Fit4Life.Controllers
                         shopContext.Entry(equipmentToReplace).Entity.Quantity = equipment.Quantity;
                         break;
                 }
+                shopContext.SaveChanges();
             }
         }
 
