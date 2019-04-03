@@ -18,6 +18,7 @@ namespace Fit4Life.Data
         public DbSet<Supplements> Supplements { get; set; }
         public DbSet<Equipment> Equipment { get; set; }
         public DbSet<Cart> Cart { get; set; }
-
+        public DbSet<Drink> Drinks { get; set; }
     }
+
 }

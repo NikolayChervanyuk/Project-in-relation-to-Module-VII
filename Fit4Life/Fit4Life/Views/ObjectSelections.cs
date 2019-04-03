@@ -1,4 +1,5 @@
 ﻿using Fit4Life.Data;
+using Fit4Life.Data.Models;
 using Fit4Life.Extentions;
 using Fit4Life.Models;
 using System;
@@ -124,6 +125,18 @@ namespace Fit4Life.Views
                 Console.Write($"Q:{equipment.Quantity}");
             }
 
+        }
+
+        internal static void PrintProductInCart(Cart cart)
+        {
+            int offset = 0;
+            Console.Write($" {cart.Name}");
+            Console.CursorLeft = offset += 35;
+           
+            Console.Write($"{cart.Price:#.00}bgn");
+            Console.CursorLeft = offset += 20;
+
+            Console.WriteLine($"Q:{cart.Quantity}");
         }
         /*internal static void PrintDrink(Drink drink)
         {

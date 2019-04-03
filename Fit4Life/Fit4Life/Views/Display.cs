@@ -230,22 +230,25 @@ namespace Fit4Life.Views
                                 }
                                 break;
                         }
+                        
                         if (!isOutOfStock)
                         {
                             //if product exists in cart, increase ShoppingCartProductCounter by 1;
                             if (GInterface.ObjectListContainsProduct(GInterface.ShoppingCartList, currentProduct, productType))
                             {
                                 GInterface.ShoppingCartProductCounter[GInterface.indexerOfProductsCounter]++;
-                                controller.IncreaseQuantityOfCartProduct(currentProduct,categoryIndex);
+                                controller.IncreaseQuantityOfCartProduct(currentProduct, categoryIndex);
                             }
                             //if product does not exist in cart, create it
                             else
                             {
                                 //integrated logic prohibits increasing quantity if product alreadt exists  
-                                controller.IncreaseQuantityOfCartProduct(currentProduct, categoryIndex);
+                                if(controller.IncreaseQuantityOfCartProduct(currentProduct, categoryIndex))
+                                {
+                                    controller.AddToCart(currentProduct, categoryIndex);
+                                }
                                 GInterface.ShoppingCartProductCounter.Add(1);
                                 GInterface.ShoppingCartList.Add(currentProduct);
-                                controller.AddToCart(currentProduct, categoryIndex);
                             }
                             Console.WriteLine();
                         }
@@ -257,6 +260,10 @@ namespace Fit4Life.Views
                             Console.CursorLeft = 0;
                             Console.Write(' ');
                             key = Console.ReadKey();
+                            if(key.Key == ConsoleKey.Spacebar)
+                            {
+                                GInterface.ShowCartInTableForm(controller.GetCart(),controller.GetThePriceOfAllProductsInCart());
+                            }
                         } while (key.Key != ConsoleKey.Tab && key.Key != ConsoleKey.Escape);
                         Console.Clear();
                         //GInterface.PrintProductsPageHeadder()

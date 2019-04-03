@@ -65,12 +65,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\Controller.cs" />
+    <Compile Include="Data\Models\Drink.cs" />
     <Compile Include="Data\Models\Equipment.cs" />
     <Compile Include="Data\Models\Cart.cs" />
     <Compile Include="Data\ShopContext.cs" />
     <Compile Include="Migrations\201904010914478_AddNewTableCart.cs" />
     <Compile Include="Migrations\201904010914478_AddNewTableCart.Designer.cs">
       <DependentUpon>201904010914478_AddNewTableCart.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201904020709248_MyTables.cs" />
+    <Compile Include="Migrations\201904020709248_MyTables.Designer.cs">
+      <DependentUpon>201904020709248_MyTables.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Views\AdminPanel.cs" />
@@ -88,6 +93,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201904010914478_AddNewTableCart.resx">
       <DependentUpon>201904010914478_AddNewTableCart.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201904020709248_MyTables.resx">
+      <DependentUpon>201904020709248_MyTables.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

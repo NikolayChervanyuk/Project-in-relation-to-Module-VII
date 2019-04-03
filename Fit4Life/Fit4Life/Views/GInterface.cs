@@ -325,6 +325,22 @@ namespace Fit4Life.Extentions
             }
         }
 
+        internal static void ShowCartInTableForm(List<Cart> cartList, decimal shoppingCartTotal)
+        {
+            Console.Clear();
+            Console.WriteLine($"\nShopping cart: {shoppingCartTotal:f2}bgn");
+            Console.WriteLine(HorizontalLine('-', '▼', 100));
+            Console.CursorLeft += Console.WindowLeft / 2;
+            Console.WriteLine("All products in your cart");
+            Console.WriteLine(HorizontalLine('-', '▼', 100));
+            foreach (var productInCart in cartList)
+
+            {
+                ObjectSelections.PrintProductInCart(productInCart);
+            }
+
+        }
+
         internal static dynamic GetCategorizedProduct(object product, int categoryIndex)
         {
             switch (categoryIndex)

@@ -43,7 +43,7 @@ namespace Fit4Life.Controllers
                 return shopContext.Cart.ToList();
             }
         }
-        
+
         //create
         internal void AddProduct(object product, int categoryIndex)
         {
@@ -146,7 +146,7 @@ namespace Fit4Life.Controllers
                 switch (categoryIndex)
                 {
                     case 0:
-                        Supplements supplement = (Supplements)product ;
+                        Supplements supplement = (Supplements)product;
                         shopContext.Cart.Add(new Cart(supplement.Name, supplement.Price, 1));
                         break;
                     case 1:
@@ -160,42 +160,57 @@ namespace Fit4Life.Controllers
             }
         }
 
-        internal void IncreaseQuantityOfCartProduct(object product, int categoryIndex, int quantity = 1)
+        internal bool IncreaseQuantityOfCartProduct(object product, int categoryIndex, int quantity = 1)
         {
             using (shopContext = new ShopContext())
             {
-                if(shopContext.Cart.Count() == 0)
+                if (shopContext.Cart.Count() > 0)
                 {
-                    return;
+                    switch (categoryIndex)
+                    {
+                        case 0:
+                            Supplements supplement = (Supplements)product;
+                            foreach (var productInCart in shopContext.Cart.ToList())
+                            {
+                                if (productInCart.Name == supplement.Name)
+                                {
+                                    productInCart.Quantity += quantity;
+                                    shopContext.SaveChanges();
+                                    break;
+                                }
+                            }
+                            break;
+                        case 1:
+                            break;
+                        case 2:
+                            Equipment equipment = (Equipment)product;
+                            foreach (var productInCart in shopContext.Cart)
+                            {
+                                if (productInCart.Name == equipment.Name)
+                                {
+                                    productInCart.Quantity += quantity;
+                                    shopContext.SaveChanges();
+                                    return true;
+                                }
+                            }
+                            break;
+                    }
                 }
-                switch (categoryIndex)
+                return false;
+
+            }
+        }
+
+        public decimal GetThePriceOfAllProductsInCart()
+        {
+            using(shopContext = new ShopContext())
+            {
+                decimal price = 0;
+                foreach (var product in shopContext.Cart.ToList())
                 {
-                    case 0:
-                        Supplements supplement = (Supplements)product;
-                        foreach (var productInCart in shopContext.Cart.ToList())
-                        {
-                            if(productInCart.Name == supplement.Name)
-                            {
-                                productInCart.Quantity += quantity;
-                                break;
-                            }
-                        }
-                        break;
-                    case 1:
-                        break;
-                    case 2:
-                        Equipment equipment = (Equipment)product;
-                        foreach (var productInCart in shopContext.Cart)
-                        {
-                            if (productInCart.Name == equipment.Name)
-                            {
-                                productInCart.Quantity += quantity;
-                                break;
-                            }
-                        }
-                        break;
+                    price += product.Price * product.Quantity;
                 }
-                shopContext.SaveChanges();
+                return price;
             }
         }
         /*private Display display;
