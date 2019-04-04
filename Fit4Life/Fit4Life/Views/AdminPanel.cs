@@ -18,7 +18,9 @@ namespace Fit4Life.Views
         private static string actions;
         int pickedActionIndex = -1;
         private string adminPassword = "a";
-
+        private const int supplementsIndex = Display.supplementsIndex;
+        private const int drinksIndex = Display.drinksIndex;
+        private const int equipmentsIndex = Display.equipmentsIndex;
         /// <summary>
         /// Requests for password. If the user enters correct password, then the method returns true, otherwise false.
         /// </summary>
@@ -123,13 +125,15 @@ namespace Fit4Life.Views
                 GInterface.SetWindowSize(GInterface.productPageWindowSize[0], GInterface.productPageWindowSize[1]);
                 switch (pickedActionIndex)
                 {
-                    case 0://supplement
+                    case supplementsIndex://supplement
                         PrintRestockPageHeadder(GInterface.SupplementsList[0].GetType().Name.ToString(), GInterface.SupplementsList.Count);
                         SelectSupplementForRestock();
                         break;
-                    case 1://drink
+                    case drinksIndex://drink
+                        PrintRestockPageHeadder(GInterface.DrinksList[0].GetType().Name.ToString(), GInterface.DrinksList.Count);
+                        SelectDrinkForRestock();
                         break;
-                    case 2://equipment
+                    case equipmentsIndex://equipment
                         PrintRestockPageHeadder(GInterface.EquipmentsList[0].GetType().Name.ToString(), GInterface.EquipmentsList.Count);
                         SelectEquipmentForRestock();
                         break;
@@ -156,6 +160,16 @@ namespace Fit4Life.Views
                         }
                         break;
                     case 4://drink
+                        Drink drink= EnterNewDrink();
+                        if (drink == null) DisplayInfoMsg("Supplement discarded");
+                        else
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Please wait...");
+                            controller.AddProduct(drink, 1);
+                            GInterface.DrinksList = GInterface.GetCategorizedList(categoryIndex, controller);
+                            DisplayInfoMsg("Drink created successfully!", 1800);
+                        }
                         break;
                     case 5://equipment
                         Equipment equipment = EnterNewEquipment();
@@ -182,7 +196,8 @@ namespace Fit4Life.Views
                         SelectSupplementForDeletion();
                         break;
                     case 7:
-                        
+                        PrintDeletionPageHeadder(GInterface.DrinksList[0].GetType().Name.ToString(), GInterface.DrinksList.Count);
+                        SelectDrinkForDeletion();
                         break;
                     case 8:
                         PrintDeletionPageHeadder(GInterface.EquipmentsList[0].GetType().Name.ToString(), GInterface.EquipmentsList.Count);
@@ -194,6 +209,7 @@ namespace Fit4Life.Views
             Console.Clear();
             return;
         }
+
 
         private void SelectSupplementForRestock()
         {
@@ -236,7 +252,46 @@ namespace Fit4Life.Views
             return;
 
         }
-
+        private void SelectDrinkForRestock()
+        {
+            GInterface.SetWindowSize(GInterface.productPageWindowSize[0], GInterface.productPageWindowSize[1]);
+            int categoryIndex = 1;
+            ObjectSelections.TopOffset = Console.CursorTop;
+            GInterface.PrintProductsFormated(categoryIndex);
+            ConsoleKeyInfo key = new ConsoleKeyInfo();
+            int drinksIndex = 1;
+            int listLenght = GInterface.DrinksList.Count;
+            ObjectSelections.SelectCurrentProductAt(drinksIndex, categoryIndex);
+            //Console.CursorVisible = false;
+            do
+            {
+                key = Console.ReadKey(true);
+                switch (key.Key)
+                {
+                    case ConsoleKey.DownArrow://select next product
+                        ObjectSelections.DeselectCurrentProductAt(drinksIndex, categoryIndex);
+                        if (drinksIndex + 1 >= listLenght)
+                        {
+                            drinksIndex = (drinksIndex % (listLenght - 1)) - 1;
+                        }
+                        ObjectSelections.SelectCurrentProductAt(++drinksIndex, categoryIndex);
+                        break;
+                    case ConsoleKey.UpArrow://select previous product
+                        ObjectSelections.DeselectCurrentProductAt(drinksIndex, categoryIndex);
+                        if (drinksIndex - 1 < 0)
+                        {
+                            drinksIndex = listLenght;
+                        }
+                        ObjectSelections.SelectCurrentProductAt(--drinksIndex, categoryIndex);
+                        break;
+                    case ConsoleKey.Enter:
+                        RestockSelectedProduct(GInterface.DrinksList[drinksIndex], drinksIndex, categoryIndex);
+                        ObjectSelections.SelectCurrentProductAt(drinksIndex, categoryIndex);
+                        break;
+                }
+            } while (key.Key != ConsoleKey.Escape);
+            return;
+        }
         private void SelectEquipmentForRestock()
         {
             GInterface.SetWindowSize(GInterface.productPageWindowSize[0], GInterface.productPageWindowSize[1]);
@@ -281,13 +336,13 @@ namespace Fit4Life.Views
         private void RestockSelectedProduct(object product, int productIndex, int categoryIndex)
         {
             int maxQuantityValue = 99999999;
-            AwaitInputForQuantityBox();
+            AwaitInputForQuantityBox(categoryIndex);
             Console.ResetColor();
             //After executing the program lines above, the cursor is set below the product in a box
             int quantityToAdd;
             switch (categoryIndex)
             {
-                case 0:
+                case supplementsIndex:
                     Supplements supplement = (Supplements)product;
                     Shapes.WriteBottomRestockInfo(product, categoryIndex);
                     quantityToAdd = int.Parse(NumberInput(1, maxQuantityValue, "int", false, "", 8).ToString());
@@ -302,9 +357,22 @@ namespace Fit4Life.Views
                     PrintRestockPageHeadder(supplement.GetType().Name.ToString(), GInterface.SupplementsList.Count);
                     GInterface.PrintProductsFormated(categoryIndex);
                     break;
-                case 1:
+                case drinksIndex:
+                    Drink drink = (Drink)product;
+                    Shapes.WriteBottomRestockInfo(product, categoryIndex);
+                    quantityToAdd = int.Parse(NumberInput(1, maxQuantityValue, "int", false, "", 8).ToString());
+                    Shapes.ShowFinalRestockInfo(product, categoryIndex, quantityToAdd);
+                    if (IsConfirmedRestockAction())
+                    {
+                        controller.IncreaseQuantityOf(drink, categoryIndex, quantityToAdd);
+                        GInterface.DrinksList = (List<Drink>)GInterface.GetCategorizedList(categoryIndex, controller);
+                        DisplayInfoMsg("Drink restocked successfully!", 1500);
+                    }
+                    else DisplayInfoMsg("Restock action cancelled", 1200);
+                    PrintRestockPageHeadder(drink.GetType().Name.ToString(), GInterface.DrinksList.Count);
+                    GInterface.PrintProductsFormated(categoryIndex);
                     break;
-                case 2:
+                case equipmentsIndex:
                     Equipment equipment = (Equipment)product;
                     Shapes.WriteBottomRestockInfo(product, categoryIndex);
                     quantityToAdd = int.Parse(NumberInput(1, maxQuantityValue, "int", false, "", 8).ToString());
@@ -340,10 +408,7 @@ namespace Fit4Life.Views
             } while (key.Key != ConsoleKey.Escape);
             return false;
         }
-
-        
-
-        private void AwaitInputForQuantityBox(int flashTimes = 2)
+        private void AwaitInputForQuantityBox(int categoryIndex, int flashTimes = 2)
         {
             int[] initialCursorPos = { Console.CursorLeft, Console.CursorTop };
             Console.BackgroundColor = ConsoleColor.DarkBlue;
@@ -352,8 +417,19 @@ namespace Fit4Life.Views
             Console.Write(GInterface.HorizontalLine(' ', ' ', 100));
             Console.CursorLeft = 45;
             Console.Write($"<<<Selected>>>");
-
-            int topOffset = ObjectSelections.TopOffset + GInterface.SupplementsList.Count + 2; // <<<works???
+            int topOffset = ObjectSelections.TopOffset + 2;  // <<<works???
+            switch (categoryIndex)
+            {
+                case supplementsIndex:
+                    topOffset += GInterface.SupplementsList.Count;
+                    break;
+                case drinksIndex:
+                    topOffset += GInterface.DrinksList.Count;
+                    break;
+                case equipmentsIndex:
+                    topOffset += GInterface.EquipmentsList.Count;
+                    break;
+            }
             int leftOffset = Console.CursorLeft = 0;
             Console.SetCursorPosition(leftOffset, topOffset - 1);
             Console.WriteLine(GInterface.HorizontalLine('=', '=', 101));
@@ -361,10 +437,10 @@ namespace Fit4Life.Views
             {
                 Console.BackgroundColor = ConsoleColor.Gray;
                 Console.ForegroundColor = ConsoleColor.Black;
-                DrawRestockProductFram(leftOffset, topOffset);
+                DrawRestockProductFrame(leftOffset, topOffset);
                 Thread.Sleep(200);
                 Console.ResetColor();
-                DrawRestockProductFram(leftOffset, topOffset);
+                DrawRestockProductFrame(leftOffset, topOffset);
                 if (Console.KeyAvailable) break;
                 Thread.Sleep(200);
             }
@@ -372,8 +448,7 @@ namespace Fit4Life.Views
             Console.CursorTop++;
             return;
         }
-
-        private void DrawRestockProductFram(int leftOffset, int topOffset)
+        private void DrawRestockProductFrame(int leftOffset, int topOffset)
         {
             Console.Write(GInterface.HorizontalLine('-', '#', 101));
             Console.CursorLeft--;
@@ -385,61 +460,6 @@ namespace Fit4Life.Views
             Console.Write('>');
             Console.SetCursorPosition(leftOffset, topOffset);
         }
-
-        private void SelectEquipmentForDeletion()
-        {
-            GInterface.SetWindowSize(GInterface.productPageWindowSize[0], GInterface.productPageWindowSize[1]);
-            int categoryIndex = 2;
-            ObjectSelections.TopOffset = Console.CursorTop;
-            GInterface.PrintProductsFormated(categoryIndex);
-            ConsoleKeyInfo key = new ConsoleKeyInfo();
-            int equipmentIndex = 0;
-            int listLenght = GInterface.EquipmentsList.Count;
-            ObjectSelections.SelectCurrentProductAt(equipmentIndex, categoryIndex);
-            Console.CursorVisible = false;
-            do
-            {
-                key = Console.ReadKey(true);
-                switch (key.Key)
-                {
-                    case ConsoleKey.DownArrow://select next product
-                        ObjectSelections.DeselectCurrentProductAt(equipmentIndex, categoryIndex);
-                        if (equipmentIndex + 1 >= listLenght)
-                        {
-                            equipmentIndex = (equipmentIndex % (listLenght - 1)) - 1;
-                        }
-                        ObjectSelections.SelectCurrentProductAt(++equipmentIndex, categoryIndex);
-                        break;
-                    case ConsoleKey.UpArrow://select previous product
-                        ObjectSelections.DeselectCurrentProductAt(equipmentIndex, categoryIndex);
-                        if (equipmentIndex - 1 < 0)
-                        {
-                            equipmentIndex = listLenght;
-                        }
-                        ObjectSelections.SelectCurrentProductAt(--equipmentIndex, categoryIndex);
-                        break;
-                    case ConsoleKey.Enter:
-                        ShowDeletionConfirmationMsg(equipmentIndex);
-                        key = Console.ReadKey(true);
-                        if (key.Key == ConsoleKey.Enter)
-                        {
-                            Console.Clear();
-                            Console.WriteLine("Please wait...");
-                            controller.DeleteProduct(GInterface.EquipmentsList[equipmentIndex], categoryIndex);
-                            DisplayInfoMsg("Deletion complete successfully!", 2200);
-                            GInterface.EquipmentsList = GInterface.GetCategorizedList(categoryIndex, controller);
-                            if (equipmentIndex >= --listLenght) equipmentIndex--;
-                            PrintDeletionPageHeadder(GInterface.EquipmentsList[0].GetType().Name.ToString(), listLenght);
-                            GInterface.PrintProductsFormated(categoryIndex);
-                        }
-                        ObjectSelections.SelectCurrentProductAt(equipmentIndex, categoryIndex);
-                        key = new ConsoleKeyInfo();
-                        break;
-                }
-            } while (key.Key != ConsoleKey.Escape && key.Key != ConsoleKey.Enter);
-            return;
-        }
-
         private void SelectSupplementForDeletion()
         {
             GInterface.SetWindowSize(GInterface.productPageWindowSize[0], GInterface.productPageWindowSize[1]);
@@ -480,7 +500,7 @@ namespace Fit4Life.Views
                             Console.Clear();
                             Console.WriteLine("Please wait...");
                             controller.DeleteProduct(GInterface.SupplementsList[supplementIndex], categoryIndex);
-                            DisplayInfoMsg("Deletion complete successfully!", 2200);
+                            DisplayInfoMsg("Deletion completed successfully!", 2200);
                             GInterface.SupplementsList = GInterface.GetCategorizedList(categoryIndex, controller);
                             if (supplementIndex >= --listLenght) supplementIndex--;
                             PrintDeletionPageHeadder(GInterface.SupplementsList[0].GetType().Name.ToString(), listLenght);
@@ -493,7 +513,112 @@ namespace Fit4Life.Views
             } while (key.Key != ConsoleKey.Escape && key.Key != ConsoleKey.Enter);
             return;
         }
-
+        private void SelectDrinkForDeletion()
+        {
+            GInterface.SetWindowSize(GInterface.productPageWindowSize[0], GInterface.productPageWindowSize[1]);
+            int categoryIndex = 1;
+            ObjectSelections.TopOffset = Console.CursorTop;
+            GInterface.PrintProductsFormated(categoryIndex);
+            ConsoleKeyInfo key = new ConsoleKeyInfo();
+            int drinkIndex = 0;
+            int listLenght = GInterface.DrinksList.Count;
+            ObjectSelections.SelectCurrentProductAt(drinkIndex, categoryIndex);
+            Console.CursorVisible = false;
+            do
+            {
+                key = Console.ReadKey(true);
+                switch (key.Key)
+                {
+                    case ConsoleKey.DownArrow://select next product
+                        ObjectSelections.DeselectCurrentProductAt(drinkIndex, categoryIndex);
+                        if (drinkIndex + 1 >= listLenght)
+                        {
+                            drinkIndex = (drinkIndex % (listLenght - 1)) - 1;
+                        }
+                        ObjectSelections.SelectCurrentProductAt(++drinkIndex, categoryIndex);
+                        break;
+                    case ConsoleKey.UpArrow://select previous product
+                        ObjectSelections.DeselectCurrentProductAt(drinkIndex, categoryIndex);
+                        if (drinkIndex - 1 < 0)
+                        {
+                            drinkIndex = listLenght;
+                        }
+                        ObjectSelections.SelectCurrentProductAt(--drinkIndex, categoryIndex);
+                        break;
+                    case ConsoleKey.Enter:
+                        ShowDeletionConfirmationMsg(drinkIndex);
+                        key = Console.ReadKey(true);
+                        if (key.Key == ConsoleKey.Enter)
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Please wait...");
+                            controller.DeleteProduct(GInterface.DrinksList[drinkIndex], categoryIndex);
+                            DisplayInfoMsg("Deletion completed successfully!", 2200);
+                            GInterface.DrinksList = GInterface.GetCategorizedList(categoryIndex, controller);
+                            if (drinkIndex >= --listLenght) drinkIndex--;
+                            PrintDeletionPageHeadder(GInterface.DrinksList[0].GetType().Name.ToString(), listLenght);
+                            GInterface.PrintProductsFormated(categoryIndex);
+                        }
+                        ObjectSelections.SelectCurrentProductAt(drinkIndex, categoryIndex);
+                        key = new ConsoleKeyInfo();
+                        break;
+                }
+            } while (key.Key != ConsoleKey.Escape && key.Key != ConsoleKey.Enter);
+            return;
+        }
+        private void SelectEquipmentForDeletion()
+        {
+            GInterface.SetWindowSize(GInterface.productPageWindowSize[0], GInterface.productPageWindowSize[1]);
+            int categoryIndex = 2;
+            ObjectSelections.TopOffset = Console.CursorTop;
+            GInterface.PrintProductsFormated(categoryIndex);
+            ConsoleKeyInfo key = new ConsoleKeyInfo();
+            int equipmentIndex = 0;
+            int listLenght = GInterface.EquipmentsList.Count;
+            ObjectSelections.SelectCurrentProductAt(equipmentIndex, categoryIndex);
+            Console.CursorVisible = false;
+            do
+            {
+                key = Console.ReadKey(true);
+                switch (key.Key)
+                {
+                    case ConsoleKey.DownArrow://select next product
+                        ObjectSelections.DeselectCurrentProductAt(equipmentIndex, categoryIndex);
+                        if (equipmentIndex + 1 >= listLenght)
+                        {
+                            equipmentIndex = (equipmentIndex % (listLenght - 1)) - 1;
+                        }
+                        ObjectSelections.SelectCurrentProductAt(++equipmentIndex, categoryIndex);
+                        break;
+                    case ConsoleKey.UpArrow://select previous product
+                        ObjectSelections.DeselectCurrentProductAt(equipmentIndex, categoryIndex);
+                        if (equipmentIndex - 1 < 0)
+                        {
+                            equipmentIndex = listLenght;
+                        }
+                        ObjectSelections.SelectCurrentProductAt(--equipmentIndex, categoryIndex);
+                        break;
+                    case ConsoleKey.Enter:
+                        ShowDeletionConfirmationMsg(equipmentIndex);
+                        key = Console.ReadKey(true);
+                        if (key.Key == ConsoleKey.Enter)
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Please wait...");
+                            controller.DeleteProduct(GInterface.EquipmentsList[equipmentIndex], categoryIndex);
+                            DisplayInfoMsg("Deletion completed successfully!", 2200);
+                            GInterface.EquipmentsList = GInterface.GetCategorizedList(categoryIndex, controller);
+                            if (equipmentIndex >= --listLenght) equipmentIndex--;
+                            PrintDeletionPageHeadder(GInterface.EquipmentsList[0].GetType().Name.ToString(), listLenght);
+                            GInterface.PrintProductsFormated(categoryIndex);
+                        }
+                        ObjectSelections.SelectCurrentProductAt(equipmentIndex, categoryIndex);
+                        key = new ConsoleKeyInfo();
+                        break;
+                }
+            } while (key.Key != ConsoleKey.Escape && key.Key != ConsoleKey.Enter);
+            return;
+        }
         private void PrintRestockPageHeadder(string nameOfCategory, int height)
         {
             Console.Clear();
@@ -511,12 +636,6 @@ namespace Fit4Life.Views
             Console.WriteLine(GInterface.HorizontalLine('-', '*', 100));
             Shapes.DrawFrame(101, height + 2, true, 'X', 'x', "red");
         }
-
-        /// <summary>
-        /// Draws a frame. If resetCursor is true, then cursor is set to it's initial position - else it stays to it's last position.
-        /// Available values for frameColour are: 'red', 'green', 'blue', 'white' and vanila.
-        /// </summary>
-     
 
         /// <summary>
         /// Creates new supplement by entering the properties of supplement.
@@ -561,7 +680,6 @@ namespace Fit4Life.Views
             string doseInfo = StringInput(minDoseStringLenght, maxDoseStringLenght, description);
             if (doseInfo == null) return null;
             supplement.Quantity = 0;
-            supplement.Category_id = 1; //<<< remove?
             if (doseInfo.Equals("")) return supplement;
             supplement.Weight += ", " + doseInfo;
             return supplement;
@@ -570,10 +688,34 @@ namespace Fit4Life.Views
         /// Creates new Drink by entering the properties of supplement.
         /// If the method is terminated via pressing the Escape key,then the supplement equals null.
         /// </summary>
-        /*private Drink EnterNewEquipment()
+        private Drink EnterNewDrink()
         {
+            Drink drink = new Drink();
+            int minNameLenght = 1;
+            int maxNameLenght = 32;
+            int minMlValue = 1;
+            int maxMlValue = 99999;
+            decimal minPriceValue = 0.001m;
+            decimal maxPriceValue = 99999m;
+            string description = $"Enter drink name(max lenght {maxNameLenght}):";
+            drink.Name = StringInput(minNameLenght, maxNameLenght, description);
+            if (drink.Name == null) return null;
+            Console.Clear();
 
-        }*/
+            description = $"Enter mililiters(max value {maxMlValue}):";
+            drink.Mililiters = NumberInput(minMlValue, maxMlValue, "int", true, description, maxMlValue.ToString().Length).ToString();
+            if (int.Parse(drink.Mililiters) < 0) return null;
+            drink.Mililiters += "mL";
+            Console.Clear();
+            
+            description = $"Enter price(max value {maxPriceValue}):";
+            drink.Price = decimal.Parse(NumberInput(minPriceValue, maxPriceValue, "decimal", true, description).ToString());
+            if (drink.Price < 0) return null;
+            Console.Clear();
+
+            drink.Quantity = 0;
+            return drink;
+        }
         /// <summary>
         /// Creates new equipment by entering the properties of supplement.
         /// If the method is terminated via pressing the Escape key,then the supplement equals null.
@@ -603,7 +745,6 @@ namespace Fit4Life.Views
             Console.Clear();
 
             equipment.Quantity = 0;
-            equipment.Category_id = 1; //<<< remove?
             return equipment;
         }
 
@@ -682,9 +823,7 @@ namespace Fit4Life.Views
             }
             return null;
         }
-        /// <summary>
-        ///  Determines wheather numberString can be parsed to typeOfnumber type and reterns true if possible, otherwise false.
-        /// </summary>
+        
         /// <summary>
         /// Returns a list of user-entered characters. If Escape key is pressed, then isEscapeKeyPressed equals true.
         /// </summary>
@@ -742,6 +881,10 @@ namespace Fit4Life.Views
             } while (key.Key != ConsoleKey.Enter);
             return fieldName;
         }
+
+        /// <summary>
+        ///  Determines wheather numberString can be parsed to typeOfnumber type and reterns true if possible, otherwise false.
+        /// </summary>
         private bool IsTypeOfNumberRequested(string typeOfnumber, string numberInString)
         {
             switch (typeOfnumber.ToLower())
@@ -765,6 +908,7 @@ namespace Fit4Life.Views
             }
             return false;
         }
+
         private bool IsAnyNumber(string stringName)
         {
             if (IsTypeOfNumberRequested("int", stringName)

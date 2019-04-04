@@ -7,13 +7,13 @@ namespace Fit4Life.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.2.0-61023")]
-    public sealed partial class AddNewTableCart : IMigrationMetadata
+    public sealed partial class Fit4LifeDBv1 : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddNewTableCart));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(Fit4LifeDBv1));
         
         string IMigrationMetadata.Id
         {
-            get { return "201904010914478_AddNewTableCart"; }
+            get { return "201904041010597_Fit4LifeDBv1"; }
         }
         
         string IMigrationMetadata.Source

@@ -30,13 +30,12 @@ namespace Fit4Life.Controllers
                 case 0:
                     return shopContext.Supplements.ToList();
                 case 1:
-                    break;
+                    return shopContext.Drinks.ToList();
                 case 2:
                     return shopContext.Equipment.ToList();
             }
             return null;
         }
-
         internal List<Cart> GetCart()
         {
             using (shopContext = new ShopContext())
@@ -44,7 +43,18 @@ namespace Fit4Life.Controllers
                 return shopContext.Cart.ToList();
             }
         }
-
+        public decimal GetThePriceOfAllProductsInCart()
+        {
+            using (shopContext = new ShopContext())
+            {
+                decimal price = 0;
+                foreach (var product in shopContext.Cart.ToList())
+                {
+                    price += product.Price * product.Quantity;
+                }
+                return price;
+            }
+        }
         //create
         internal void AddProduct(object product, int categoryIndex)
         {
@@ -57,6 +67,8 @@ namespace Fit4Life.Controllers
                         shopContext.Supplements.Add(supplement);
                         break;
                     case 1:
+                        Drink drink = (Drink)product;
+                        shopContext.Drinks.Add(drink);
                         break;
                     case 2:
                         Equipment equipment = (Equipment)product;
@@ -65,6 +77,47 @@ namespace Fit4Life.Controllers
                 }
                 shopContext.SaveChanges();
             }
+        }
+        internal void AddToCart(object product, int categoryIndex)
+        {
+            using (shopContext = new ShopContext())
+            {
+                switch (categoryIndex)
+                {
+                    case 0:
+                        Supplements supplement = (Supplements)product;
+                        shopContext.Cart.Add(new Cart(supplement.Name, supplement.Price, 1));
+                        break;
+                    case 1:
+                        Drink drink = (Drink)product;
+                        shopContext.Cart.Add(new Cart(drink.Name, drink.Price, 1));
+                        break;
+                    case 2:
+                        Equipment equipment = (Equipment)product;
+                        shopContext.Cart.Add(new Cart(equipment.Name, equipment.Price, 1));
+                        break;
+                }
+                shopContext.SaveChanges();
+            }
+            /*using (shopContext = new ShopContext())
+            {
+                switch (categoryIndex)
+                {
+                    case 0:
+                        Supplements supplement = (Supplements)product;
+                        shopContext.Entry(supplement).State = EntityState.Deleted;
+                        break;
+                    case 1:
+                        Supplements supplement = (Supplements)product;
+                        shopContext.Entry(supplement).State = EntityState.Deleted;
+                        break;
+                    case 2:
+                        Equipment equipment = (Equipment)product;
+                        shopContext.Entry(equipment).State = EntityState.Deleted;
+                        break;
+                }
+                shopContext.SaveChanges();
+            }*/
         }
 
         //update
@@ -80,11 +133,11 @@ namespace Fit4Life.Controllers
                         updater = shopContext.Supplements.FirstOrDefault(s => s.Id == supplement.Id);
                         updater.Quantity -= quantity;
                         break;
-                    /*case "Drink":
-                        Supplements supplement = (Supplements)product;
-                        var updater = shopContext.Supplements.FirstOrDefault(s => s.Id == supplement.Id);
+                    case "Drink":
+                        Drink drink = (Drink)product;
+                        updater = shopContext.Drinks.FirstOrDefault(s => s.Id == drink.Id);
                         updater.Quantity -= quantity;
-                        break;*/
+                        break;
                     case "Equipment":
                         Equipment equipment = (Equipment)product;
                         updater = shopContext.Equipment.FirstOrDefault(s => s.Id == equipment.Id);
@@ -107,6 +160,10 @@ namespace Fit4Life.Controllers
                         shopContext.Entry(supplementToReplace).Entity.Quantity = supplement.Quantity;
                         break;
                     case 1:
+                        Drink drink = (Drink)product;
+                        Drink drinkToReplace = shopContext.Drinks.Find(drink.Id);
+                        drink.Quantity += quantity;
+                        shopContext.Entry(drinkToReplace).Entity.Quantity = drink.Quantity;
                         break;
                     case 2:
                         Equipment equipment = (Equipment)product;
@@ -118,6 +175,64 @@ namespace Fit4Life.Controllers
                 shopContext.SaveChanges();
             }
         }
+        /// <summary>
+        /// Increases the quantity of a product in shopping cart if exists by name. 
+        /// Returns true if quantity increasement succeeded, else false.
+        /// </summary>
+        /// <param name="product">Product to be found</param>
+        /// <param name="quantity">The quantity, which would be added</param>
+        internal bool IncreaseQuantityOfCartProductIfExists(object product, int categoryIndex, int quantity = 1)
+        {
+            using (shopContext = new ShopContext())
+            {
+                bool isProductInCart = false;
+                switch (categoryIndex)
+                {
+                    case 0:
+                        Supplements supplement = (Supplements)product;
+                        foreach (var productInCart in shopContext.Cart.ToList())
+                        {
+                            if (productInCart.Name == supplement.Name)
+                            {
+                                productInCart.Quantity += quantity;
+                                isProductInCart = true;
+                                break;
+                            }
+                        }
+                        break;
+                    case 1:
+                        Drink drink = (Drink)product;
+                        foreach (var productInCart in shopContext.Cart.ToList())
+                        {
+                            if (productInCart.Name == drink.Name)
+                            {
+                                productInCart.Quantity += quantity;
+                                isProductInCart = true;
+                                break;
+                            }
+                        }
+                        break;
+                    case 2:
+                        Equipment equipment = (Equipment)product;
+                        foreach (var productInCart in shopContext.Cart)
+                        {
+                            if (productInCart.Name == equipment.Name)
+                            {
+                                productInCart.Quantity += quantity;
+                                isProductInCart = true;
+                                break;
+                            }
+                        }
+                        break;
+                }
+                if (isProductInCart)
+                {
+                    shopContext.SaveChanges();
+                    return true;
+                }
+                return false;
+            }
+        }
 
         //delete
         internal void DeleteProduct(object product, int categoryIndex)
@@ -127,125 +242,20 @@ namespace Fit4Life.Controllers
                 switch (categoryIndex)
                 {
                     case 0:
-                        // Supplements supplement = shopContext.Supplements.Find(id) ;
+                        shopContext.Supplements.Attach((Supplements)product);
                         shopContext.Supplements.Remove((Supplements)product);
                         break;
                     case 1:
+                        shopContext.Drinks.Attach((Drink)product);
+                        shopContext.Drinks.Remove((Drink)product);
                         break;
                     case 2:
-                        //   Equipment equipment = shopContext.Equipment.Find(id);
-                        //    shopContext.Equipment.Remove(equipment);
+                        shopContext.Equipment.Attach((Equipment)product);
+                        shopContext.Equipment.Remove((Equipment)product);
                         break;
                 }
                 shopContext.SaveChanges();
             }
         }
-
-        internal void AddToCart(object product, int categoryIndex)
-        {
-            using (shopContext = new ShopContext())
-            {
-                switch (categoryIndex)
-                {
-                    case 0:
-                        Supplements supplement = (Supplements)product;
-                        shopContext.Cart.Add(new Cart(supplement.Name, supplement.Price, 1));
-                        break;
-                    case 1:
-                        break;
-                    case 2:
-                        Equipment equipment = (Equipment)product;
-                        shopContext.Cart.Add(new Cart(equipment.Name, equipment.Price, 1));
-                        break;
-                }
-                shopContext.SaveChanges();
-            }
-            using (shopContext = new ShopContext())
-            {
-                switch (categoryIndex)
-                {
-                    case 0:
-                        Supplements supplement = (Supplements)product;
-                        shopContext.Entry(supplement).State = EntityState.Deleted;
-                        break;
-                    case 1:
-                        break;
-                    case 2:
-                        Equipment equipment = (Equipment)product;
-                        shopContext.Entry(equipment).State = EntityState.Deleted;
-                        break;
-                }
-                shopContext.SaveChanges();
-            }
-        }
-
-        internal bool IncreaseQuantityOfCartProduct(object product, int categoryIndex, int quantity = 1)
-        {
-            using (shopContext = new ShopContext())
-            {
-                if (shopContext.Cart.Count() > 0)
-                {
-                    switch (categoryIndex)
-                    {
-                        case 0:
-                            Supplements supplement = (Supplements)product;
-                            foreach (var productInCart in shopContext.Cart.ToList())
-                            {
-                                if (productInCart.Name == supplement.Name)
-                                {
-                                    productInCart.Quantity += quantity;
-                                    shopContext.SaveChanges();
-                                    break;
-                                }
-                            }
-                            break;
-                        case 1:
-                            break;
-                        case 2:
-                            Equipment equipment = (Equipment)product;
-                            foreach (var productInCart in shopContext.Cart)
-                            {
-                                if (productInCart.Name == equipment.Name)
-                                {
-                                    productInCart.Quantity += quantity;
-                                    shopContext.SaveChanges();
-                                    return true;
-                                }
-                            }
-                            break;
-                    }
-                }
-                return false;
-
-            }
-        }
-
-        public decimal GetThePriceOfAllProductsInCart()
-        {
-            using(shopContext = new ShopContext())
-            {
-                decimal price = 0;
-                foreach (var product in shopContext.Cart.ToList())
-                {
-                    price += product.Price * product.Quantity;
-                }
-                return price;
-            }
-        }
-        /*private Display display;
-        private DataManagement dataManagement;
-        internal void Start()
-        {
-            display = new Display();
-            dataManagement = new DataManagement();
-            //dataManagement.EstablishDataBaseConnection("fit4life", "connectionTester", "1234");
-
-            while (true)
-            {
-                dataManagement.FetchDataBasedOn(Display.pickedOptionIndex);
-                display.OpenProductsView(dataManagement.CurrentOptionIndex);
-            }
-            //dataManagement.connection.Close();
-        }*/
     }
 }

@@ -11,13 +11,17 @@ namespace Fit4Life.Views
 {
     internal static class Shapes
     {
+        private const int supplementsIndex = Display.supplementsIndex;
+        private const int drinksIndex = Display.drinksIndex;
+        private const int equipmentsIndex = Display.equipmentsIndex;
+
         internal static  void WriteBottomRestockInfo(object product, int categoryIndex)
         {
             string explanationMsg = "Quantity to add:";
             int[] quantityFieldPos = new int[2];
             switch (categoryIndex)
             {
-                case 0:
+                case supplementsIndex:
                     Supplements supplement = (Supplements)product;
                     Console.Write($"Supplement: {supplement.Name} / {supplement.Brand}");
                     GInterface.ShiftText(5);
@@ -32,12 +36,25 @@ namespace Fit4Life.Views
                     quantityFieldPos = new int[] { Console.CursorLeft, Console.CursorTop }; //Beginning of the quanitity number field
                     Console.Write(GInterface.HorizontalLine(' ', ' ', 8));
                     Console.CursorLeft = quantityFieldPos[0];
-                    //System.Threading.Thread.Sleep(3000);
                     break;
-                case 1:
-                    //var productCategorized = (Drink)product;
+                case drinksIndex:
+                   Drink drink = (Drink)product;
+                    Console.Write($"Equipment: {drink.Name}");
+                    GInterface.ShiftText(5);
+                    Console.Write($"Price: {drink.Price:f2}");
+                    GInterface.ShiftText(5);
+                    Console.Write($"Q:{drink.Quantity}");
+                    GInterface.ShiftText(2);
+                    Console.CursorLeft = 100 - 25;
+                    explanationMsg = "Quantity to add:";
+                    Console.Write(explanationMsg);
+                    Console.BackgroundColor = ConsoleColor.White;
+                    Console.ForegroundColor = ConsoleColor.Black;
+                    quantityFieldPos = new int[] { Console.CursorLeft, Console.CursorTop }; //Beginning of the quanitity number field
+                    Console.Write(GInterface.HorizontalLine(' ', ' ', 8));
+                    Console.CursorLeft = quantityFieldPos[0];
                     break;
-                case 2:
+                case equipmentsIndex:
                     Equipment equipment = (Equipment)product;
                     Console.Write($"Equipment: {equipment.Name} / {equipment.Brand}");
                     GInterface.ShiftText(5);
@@ -66,19 +83,22 @@ namespace Fit4Life.Views
             Console.CursorTop++;
             switch (categoryIndex)
             {
-                case 0:
+                case supplementsIndex:
                     var supplement = (Supplements)product;
                     //int[] quantityFieldPos = { Console.CursorLeft, Console.CursorTop }; //Beginning of the quanitity number field
                     Console.Write($"Expenses:{supplement.Price:f2}bgn x {quantityToAdd}");
                     Console.CursorTop++;
                     Console.CursorLeft = boxPos[0] + 1;
                     Console.Write($" => {supplement.Price * quantityToAdd}bgn");
-                    //System.Threading.Thread.Sleep(3000);
                     break;
-                case 1:
-                    //var productCategorized = (Drink)product;
+                case drinksIndex:
+                   Drink drink = (Drink)product;
+                    Console.Write($"Expenses:{drink.Price:f2}bgn x {quantityToAdd}");
+                    Console.CursorTop++;
+                    Console.CursorLeft = boxPos[0] + 1;
+                    Console.Write($" => {drink.Price * quantityToAdd}bgn");
                     break;
-                case 2:
+                case equipmentsIndex:
                     Equipment equipment = (Equipment)product;
                     Console.Write($"Expenses:{equipment.Price:f2}bgn x {quantityToAdd}");
                     Console.CursorTop++;

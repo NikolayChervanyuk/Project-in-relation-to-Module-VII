@@ -17,11 +17,14 @@ namespace Fit4Life.Extentions
         //internal static List<Type> ProductsList { get; set; }
         internal static List<object> ShoppingCartList { get; set; }
         internal static List<int> ShoppingCartProductCounter { get; set; }
-
         internal static List<Supplements> SupplementsList { get; set; }
-        //internal static List<Drink> SupplementsList { get; set; }
+        internal static List<Drink> DrinksList { get; set; }
         internal static List<Equipment> EquipmentsList { get; set; }
+        internal static List<Cart> CartList { get; set; }
         internal static int indexerOfProductsCounter = 0;
+        private const int supplementsIndex = Display.supplementsIndex;
+        private const int drinksIndex = Display.drinksIndex;
+        private const int equipmentsIndex = Display.equipmentsIndex;
 
         //Resolution ratios respectively width to height, height to width
         private static readonly int screenWidth = Screen.PrimaryScreen.Bounds.Width;
@@ -41,16 +44,16 @@ namespace Fit4Life.Extentions
 
         internal static void PrintMainPageHeadder()
         {
-            DrawVerticalLine('|', '+', 4,true);
+            DrawVerticalLine('|', '+', 4, true);
             Console.Write(HorizontalLine('-', '+', 24));
             Console.CursorLeft--;
-            DrawVerticalLine('|', '+', 4,true);
+            DrawVerticalLine('|', '+', 4, true);
             Console.WriteLine();
             ShiftText(5);
             Console.WriteLine("<|Fit 4 Life|>");
             ShiftText(1);
             Console.WriteLine("Welcome to our shop!");
-            Console.WriteLine(HorizontalLine('-','+', 24));
+            Console.WriteLine(HorizontalLine('-', '+', 24));
             ObjectSelections.TopOffset = Console.CursorTop;
             ObjectSelections.LeftOffset = Console.CursorLeft;
         }
@@ -58,10 +61,10 @@ namespace Fit4Life.Extentions
         {
             Console.WriteLine("Navigation:\nArrows up/down - scroll \nEnter - add to cart\t  Esc - return to main menu");
             Console.WriteLine($"\nShopping cart: {shoppingCartTotal:f2}bgn");
-            Console.WriteLine(HorizontalLine('-', '▼', 100));
+            Console.WriteLine(HorizontalLine('-', '+', 100));
             ShiftText(45);
             Console.WriteLine(ObjectSelections.OptionsList[optionIndex]);
-            Console.WriteLine(HorizontalLine('-', '▲', 100));
+            Console.WriteLine(HorizontalLine('-', '+', 100));
             ObjectSelections.TopOffset = Console.CursorTop;
             ObjectSelections.LeftOffset = Console.CursorLeft;
         }
@@ -106,11 +109,11 @@ namespace Fit4Life.Extentions
         {
             switch (categoryIndex)
             {
-                case 0:
+                case supplementsIndex:
                     return SupplementsList.Count;
-                case 1:
-                //return DrinksList.Count;
-                case 2:
+                case drinksIndex:
+                    return DrinksList.Count;
+                case equipmentsIndex:
                     return EquipmentsList.Count;
                 default:
                     return 0;
@@ -125,15 +128,16 @@ namespace Fit4Life.Extentions
             dynamic productsList_Obj = controller.GetAllBasedOnCategory(optionIndex);
             return ReturnDefinedTypeList(optionIndex, productsList_Obj);
         }
+        //yess
         private static object ReturnDefinedTypeList(int optionIndex, dynamic productList_Undefined)
         {
             switch (optionIndex)
             {
-                case 0:
+                case supplementsIndex:
                     return new List<Supplements>(productList_Undefined);
-                case 1:
-                //return new List<Drinks>(productList_Undefined);
-                case 2:
+                case drinksIndex:
+                    return new List<Drink>(productList_Undefined);
+                case equipmentsIndex:
                     return new List<Equipment>(productList_Undefined);
                 default:
                     return null;
@@ -143,26 +147,27 @@ namespace Fit4Life.Extentions
         /// <summary>
         /// Prints all products fetched from the database in a tablelike fashion
         /// </summary>
+        /// //yes
         internal static void PrintProductsFormated(int categoryIndex)
         {
             Console.SetCursorPosition(0, ObjectSelections.TopOffset);
             switch (categoryIndex)
             {
-                case 0://supplements
+                case supplementsIndex://supplements
                     for (int i = 0; i < SupplementsList.Count; i++)
                     {
                         ObjectSelections.PrintProductByIndex(i, categoryIndex);
                         Console.WriteLine();
                     }
                     break;
-                case 1://drinks
-                    /*for (int i = 0; i < DrinksList.Count; i++)
+                case drinksIndex://drinks
+                    for (int i = 0; i < DrinksList.Count; i++)
                     {
-                        PrintProductByIndex(i, categoryIndex);
+                        ObjectSelections.PrintProductByIndex(i, categoryIndex);
                         Console.WriteLine();
-                    }*/
+                    }
                     break;
-                case 2://equipments
+                case equipmentsIndex://equipments
                     for (int i = 0; i < EquipmentsList.Count; i++)
                     {
                         ObjectSelections.PrintProductByIndex(i, categoryIndex);
@@ -173,21 +178,18 @@ namespace Fit4Life.Extentions
                     break;
             }
         }
-
+        //yess
         internal static int IndexOfProductInCart(object product, int categoryIndex)
         {
             switch (categoryIndex)
             {
-                case 0:
+                case supplementsIndex:
                     Supplements supplement = (Supplements)product;
                     for (int i = 0; i < ShoppingCartList.Count; i++)
                     {
                         try
                         {
-                            if (((Supplements)ShoppingCartList[i]).Id == supplement.Id)
-                            {
-                                return i;
-                            }
+                            if (((Supplements)ShoppingCartList[i]).Id == supplement.Id) return i;
                         }
                         catch (Exception)
                         {
@@ -195,19 +197,27 @@ namespace Fit4Life.Extentions
                         }
                     }
                     break;
-                /*case 1:
-                    Drink supplement = (Drink)product;
-                    break;*/
-                case 2:
+                case drinksIndex:
+                    Drink drink = (Drink)product;
+                    for (int i = 0; i < ShoppingCartList.Count; i++)
+                    {
+                        try
+                        {
+                            if (((Drink)ShoppingCartList[i]).Id == drink.Id) return i;
+                        }
+                        catch (Exception)
+                        {
+                            continue;
+                        }
+                    }
+                    break;
+                case equipmentsIndex:
                     Equipment equipment = (Equipment)product;
                     for (int i = 0; i < ShoppingCartList.Count; i++)
                     {
                         try
                         {
-                            if (((Equipment)ShoppingCartList[i]).Id == equipment.Id)
-                            {
-                                return i;
-                            }
+                            if (((Equipment)ShoppingCartList[i]).Id == equipment.Id) return i;
                         }
                         catch (Exception)
                         {
@@ -230,7 +240,6 @@ namespace Fit4Life.Extentions
             Console.Write(new string(' ', 44));
             System.Threading.Thread.Sleep(800);
             Console.ResetColor();
-
         }
 
         /// <summary>
@@ -258,7 +267,7 @@ namespace Fit4Life.Extentions
 
                         }
                         break;
-                    /*case "Drink":
+                    case "Drink":
                     if (shoppingCartProduct.GetType().Name.ToString() == productType)
                         {      
                             var drink = (Drink)shoppingCartProduct;
@@ -269,7 +278,7 @@ namespace Fit4Life.Extentions
                                flag = true;
                             }
                         }
-                          break;*/
+                          break;
                     case "Equipment":
                         if (shoppingCartProduct.GetType().Name.ToString() == productType)
                         {
@@ -297,7 +306,7 @@ namespace Fit4Life.Extentions
                 int index = 0;
                 foreach (object productInCart in ShoppingCartList)
                 {
-                    Console.CursorLeft = 99;
+                    Console.CursorLeft = 92;
                     Console.Write($"x{ShoppingCartProductCounter[index++]}");
                     Console.CursorLeft = 0;
                     Console.Write($" {index}.");
@@ -305,18 +314,16 @@ namespace Fit4Life.Extentions
                     {
                         case "Supplements":
 
-                            ObjectSelections.PrintProduct(productInCart, 0, true);
-                            Console.WriteLine();
+                            ObjectSelections.PrintProduct(productInCart, supplementsIndex, true);
                             break;
-                        case "Drinks":
-                            //ObjectSelections.PrintProduct(productInCart, 1, true);
-                            //Console.WriteLine();
+                        case "Drink":
+                            ObjectSelections.PrintProduct(productInCart, drinksIndex, true);
                             break;
                         case "Equipment":
-                            ObjectSelections.PrintProduct(productInCart, 2, true);
-                            Console.WriteLine();
+                            ObjectSelections.PrintProduct(productInCart, equipmentsIndex, true);
                             break;
                     }
+                    Console.WriteLine();
                 }
 
             }
@@ -330,27 +337,27 @@ namespace Fit4Life.Extentions
         {
             Console.Clear();
             Console.WriteLine($"\nShopping cart: {shoppingCartTotal:f2}bgn");
-            Console.WriteLine(HorizontalLine('-', '▼', 100));
+            Console.WriteLine(HorizontalLine('-', '+', 100));
             Console.CursorLeft += Console.WindowLeft / 2;
             Console.WriteLine("All products in your cart");
-            Console.WriteLine(HorizontalLine('-', '▼', 100));
+            Console.WriteLine(HorizontalLine('-', '+', 100));
             foreach (var productInCart in cartList)
-
             {
                 ObjectSelections.PrintProductInCart(productInCart);
             }
-
+            var key = Console.ReadKey(true);
+            while (key.Key != ConsoleKey.Spacebar && key.Key != ConsoleKey.Escape) key = Console.ReadKey(true);
         }
 
         internal static dynamic GetCategorizedProduct(object product, int categoryIndex)
         {
             switch (categoryIndex)
             {
-                case 0:
+                case supplementsIndex:
                     return (Supplements)product;
-                case 1:
-                //return (Drink)product;
-                case 2:
+                case drinksIndex:
+                    return (Drink)product;
+                case equipmentsIndex:
                     return (Equipment)product;
             }
             return null;
@@ -395,10 +402,10 @@ namespace Fit4Life.Extentions
             {
                 charactersLine[i] = character;
             }
-            charactersLine[lineLenght-1] = endingsChar;
+            charactersLine[lineLenght - 1] = endingsChar;
             return string.Concat(charactersLine);
         }
-        internal static void  DrawVerticalLine(char character, char endingsChar, int lineLenght, bool returnCursor = false)
+        internal static void DrawVerticalLine(char character, char endingsChar, int lineLenght, bool returnCursor = false)
         {
             int cursorPos_X = Console.CursorLeft;
             int cursorPos_Y = Console.CursorTop;
@@ -411,7 +418,7 @@ namespace Fit4Life.Extentions
             }
             Console.CursorLeft--;
             Console.Write(endingsChar);
-            if(returnCursor) Console.SetCursorPosition(cursorPos_X, cursorPos_Y);
+            if (returnCursor) Console.SetCursorPosition(cursorPos_X, cursorPos_Y);
         }
         /// <param name="clearLine">If true, then clears all chars beforehand.</param>
         internal static void ShiftText(int positions, bool clearLine = false)

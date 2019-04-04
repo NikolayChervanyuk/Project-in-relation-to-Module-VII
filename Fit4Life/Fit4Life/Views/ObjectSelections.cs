@@ -15,6 +15,9 @@ namespace Fit4Life.Views
         internal static List<string> OptionsList { get; set; }
         internal static int TopOffset;
         internal static int LeftOffset;
+        private const int supplementsIndex = Display.supplementsIndex;
+        private const int drinksIndex = Display.drinksIndex;
+        private const int equipmentsIndex = Display.equipmentsIndex;
 
         internal static void SelectCurrentOptionAt(int optionIndex)
         {
@@ -60,13 +63,13 @@ namespace Fit4Life.Views
             Console.Write($" {productIndex + 1}.");
             switch (categoryIndex)
             {
-                case 0:
+                case supplementsIndex:
                     PrintSupplement(GInterface.SupplementsList[productIndex]);
                     break;
-                case 1:
-
+                case drinksIndex:
+                    PrintDrink(GInterface.DrinksList[productIndex]);
                     break;
-                case 2:
+                case equipmentsIndex:
                     PrintEquipment(GInterface.EquipmentsList[productIndex]);
                     break;
             }
@@ -79,15 +82,15 @@ namespace Fit4Life.Views
         {
             switch (categoryIndex)
             {
-                case 0:
+                case supplementsIndex:
                     Supplements supplement = (Supplements)product;
                     PrintSupplement(supplement, printForCart);
                     break;
-                case 1:
-                    //Drink drink = (Drink)product;
-                    //PrintDrink(drink, printForCart);
+                case drinksIndex:
+                    Drink drink = (Drink)product;
+                    PrintDrink(drink, printForCart);
                     break;
-                case 2:
+                case equipmentsIndex:
                     Equipment equipment = (Equipment)product;
                     PrintEquipment(equipment, printForCart);
                     break;
@@ -108,6 +111,20 @@ namespace Fit4Life.Views
             if (!printForCart)
             {
                 Console.Write($"Q:{supplement.Quantity}");
+            }
+        }
+        internal static void PrintDrink(Drink drink, bool printForCart = false)
+        {
+            int offset = 0;
+            Console.Write($" {drink.Name}");
+            Console.CursorLeft = offset += 34;
+            Console.Write($"{drink.Mililiters}");
+            Console.CursorLeft = offset += 19;
+            Console.Write($"{drink.Price:#.00}bgn");
+            Console.CursorLeft = 90;
+            if (!printForCart)
+            {
+                Console.Write($"Q:{drink.Quantity}");
             }
         }
         internal static void PrintEquipment(Equipment equipment, bool printForCart = false)
@@ -137,9 +154,5 @@ namespace Fit4Life.Views
 
             Console.WriteLine($"Q:{cart.Quantity}");
         }
-        /*internal static void PrintDrink(Drink drink)
-        {
-         
-        }*/
     }
 }

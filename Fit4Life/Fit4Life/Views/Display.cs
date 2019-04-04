@@ -17,6 +17,10 @@ namespace Fit4Life.Views
         internal static decimal shoppingCartTotal = 0;
         private static string optionsString = "Supplements;Drinks;Equipment;Admin login";
         private static int adminOptionIndex = -1;
+        internal const int supplementsIndex = 0;
+        internal const int drinksIndex = 1;
+        internal const int equipmentsIndex = 2;
+        private const int adminIndex = 3;
         /// <summary>
         /// Initializes main page headder and sets optionIndex 
         /// to the option the user has selected
@@ -30,10 +34,60 @@ namespace Fit4Life.Views
             ObjectSelections.OptionsList = GInterface.GetStringListFromString(optionsString, printOptions: true);
             pickedOptionIndex = SelectOption();
         }
+        internal void OpenProductsView(int optionIndex)
+        {
+            Console.ResetColor();
+            Console.Clear();
+            GInterface.SetWindowSize(60, 80);
+            GInterface.PrintProductsPageHeadder(shoppingCartTotal, optionIndex);
+            if (optionIndex != -1)
+            {
+                var productsList = GInterface.GetCategorizedList(optionIndex, controller);
+                switch (optionIndex)
+                {
+                    case supplementsIndex:
+                        GInterface.SupplementsList = (List<Supplements>)productsList;
+                        break;
+                    case drinksIndex:
+                        GInterface.DrinksList = (List<Drink>)productsList;
+                        break;
+                    case equipmentsIndex:
+                        GInterface.EquipmentsList = (List<Equipment>)productsList;
+                        break;
+                    case adminIndex:
+                        OpenAdminView();
+                        break;
+                }
+                PrintProductsBasedOnCategory(optionIndex);
+                SelectProduct(optionIndex);
+            }
+            else
+            {
+                throw new IndexOutOfRangeException("No option was chosen");
+            }
+        }
+        private void OpenAdminView(bool trustedUser = false)
+        {
+            AdminPanel admin = new AdminPanel();
+            int pickedAction = -1;
+            Console.Clear();
+            if (admin.IsAccessGained() || trustedUser)
+            {
+                do
+                {
+
+                    admin.PrintAdminPageHeadder();
+                    //System.Threading.Thread.Sleep(1000);
+                    pickedAction = admin.SelectAction();
+                    admin.TakeAction(pickedAction);
+                } while (pickedAction != -1);
+            }
+            //OpenHomeView();
+            return;
+        }
         /// <summary>
         /// Returns the index option selected by the user
         /// </summary>
-        /// <returns></returns>
         private int SelectOption(int optionIndex = 0)
         {
             //int pickedOptionIndex = -1;
@@ -94,78 +148,6 @@ namespace Fit4Life.Views
             Console.CursorVisible = true;
             return pickedOptionIndex = optIndex;
         }
-
-        //Displays the products view according to optionIndex
-        internal void OpenProductsView(int optionIndex)
-        {
-            Console.ResetColor();
-            Console.Clear();
-            GInterface.SetWindowSize(60, 80);
-            GInterface.PrintProductsPageHeadder(shoppingCartTotal, optionIndex);
-            if (optionIndex != -1)
-            {
-                var productsList = GInterface.GetCategorizedList(optionIndex, controller);
-                switch (optionIndex)
-                {
-                    case 0:
-                        GInterface.SupplementsList = (List<Supplements>)productsList;
-                        break;
-                    case 1:
-                        //GInterface.DrinksList = (List<Drink>)productsList;
-                        break;
-                    case 2:
-                        GInterface.EquipmentsList = (List<Equipment>)productsList;
-                        break;
-                    case 3:
-                        OpenAdminView();
-                        break;
-                }
-                PrintProductsBasedOnCategory(optionIndex);
-                SelectProduct(optionIndex);
-            }
-            else
-            {
-                throw new IndexOutOfRangeException("No option was chosen");
-            }
-        }
-
-        private void OpenAdminView(bool trustedUser = false)
-        {
-            AdminPanel admin = new AdminPanel();
-            int pickedAction = -1;
-            Console.Clear();
-            if (admin.IsAccessGained() || trustedUser)
-            {
-                do
-                {
-
-                    admin.PrintAdminPageHeadder();
-                    //System.Threading.Thread.Sleep(1000);
-                    pickedAction = admin.SelectAction();
-                    admin.TakeAction(pickedAction);
-                } while (pickedAction != -1);
-            }
-            //OpenHomeView();
-            return;
-        }
-
-        private void PrintProductsBasedOnCategory(int optionIndex)
-        {
-            switch (optionIndex)
-            {
-                case 0://supplements
-                    GInterface.PrintProductsFormated(optionIndex);
-                    break;
-                case 1://drinks
-                    //GInterface.PrintProductFormated(GInterface.DrinksList, optionIndex);
-                    break;
-                case 2://equipment
-                    GInterface.PrintProductsFormated(optionIndex);
-                    break;
-                default:
-                    break;
-            }
-        }
         private void SelectProduct(int optionIndex)
         {
             int productIndex = 0;
@@ -214,16 +196,32 @@ namespace Fit4Life.Views
                                 else//add to cart and update database
                                 {
                                     controller.DecreaseQuantityOf(currentProduct, 1);
-                                    GInterface.SupplementsList = (List<Supplements>)controller.GetAllBasedOnCategory(0);
+                                    //controller.AddToCart(supplement, categoryIndex);
+                                    GInterface.SupplementsList = (List<Supplements>)controller.GetAllBasedOnCategory(supplementsIndex);
                                     ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);
                                     shoppingCartTotal += supplement.Price;
                                     GInterface.RefreshCartTotal(shoppingCartTotal);
                                 }
                                 break;
                             case "Drink":
-                                /*Drink drink = (Drink)product;
-                                  categoryIndex = 1;
-                                 */
+                                categoryIndex = 1;
+                                Drink drink = (Drink)currentProduct;
+                                if (drink.Quantity <= 0)
+                                {
+                                    isOutOfStock = true;
+                                    GInterface.ShowOutOfStockMsg(productIndex);
+                                    Console.CursorLeft = 0;
+                                    ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);
+                                }
+                                else//add to cart and update database
+                                {
+                                    controller.DecreaseQuantityOf(currentProduct, 1);
+                                    //controller.AddToCart(supplement, categoryIndex);
+                                    GInterface.DrinksList = (List<Drink>)controller.GetAllBasedOnCategory(drinksIndex);
+                                    ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);
+                                    shoppingCartTotal += drink.Price;
+                                    GInterface.RefreshCartTotal(shoppingCartTotal);
+                                }
                                 break;
                             case "Equipment":
                                 categoryIndex = 2;
@@ -246,22 +244,24 @@ namespace Fit4Life.Views
                                 }
                                 break;
                         }
-                        
+
                         if (!isOutOfStock)
                         {
                             //if product exists in cart, increase ShoppingCartProductCounter by 1;
                             if (GInterface.ObjectListContainsProduct(GInterface.ShoppingCartList, currentProduct, productType))
                             {
                                 GInterface.ShoppingCartProductCounter[GInterface.indexerOfProductsCounter]++;
-                                controller.IncreaseQuantityOfCartProduct(currentProduct, categoryIndex);
+                                controller.IncreaseQuantityOfCartProductIfExists(currentProduct, categoryIndex);
+                                GInterface.CartList = controller.GetCart();
                             }
                             //if product does not exist in cart, create it
                             else
                             {
-                                //integrated logic prohibits increasing quantity if product alreadt exists  
-                                if(controller.IncreaseQuantityOfCartProduct(currentProduct, categoryIndex))
+                                //integrated logic prohibits quantity increasing if product alreadt exists
+                                if (controller.IncreaseQuantityOfCartProductIfExists(currentProduct, categoryIndex))
                                 {
                                     controller.AddToCart(currentProduct, categoryIndex);
+                                    GInterface.CartList = controller.GetCart();
                                 }
                                 GInterface.ShoppingCartProductCounter.Add(1);
                                 GInterface.ShoppingCartList.Add(currentProduct);
@@ -270,17 +270,18 @@ namespace Fit4Life.Views
                         }
                         break;
                     case ConsoleKey.Tab://show/hide cart
-                        GInterface.ShowCart();
                         do
                         {
+                            GInterface.ShowCart();
                             Console.CursorLeft = 0;
-                            Console.Write(' ');
-                            key = Console.ReadKey();
-                            if(key.Key == ConsoleKey.Spacebar)
-                            {
-                                GInterface.ShowCartInTableForm(controller.GetCart(),controller.GetThePriceOfAllProductsInCart());
-                            }
+                            //Console.Write(' ');
                             key = Console.ReadKey(true);
+
+                            /*
+                            if (key.Key == ConsoleKey.Spacebar)
+                            {
+                                GInterface.ShowCartInTableForm(GInterface.CartList, controller.GetThePriceOfAllProductsInCart());
+                            }*/
                         } while (key.Key != ConsoleKey.Tab && key.Key != ConsoleKey.Escape);
                         Console.Clear();
                         GInterface.PrintProductsPageHeadder(shoppingCartTotal, optionIndex);
@@ -293,6 +294,27 @@ namespace Fit4Life.Views
             Console.Clear();
             OpenHomeView();
         }
+
+        //Displays the products view according to optionIndex
+        private void PrintProductsBasedOnCategory(int optionIndex)
+        {
+            switch (optionIndex)
+            {
+                case supplementsIndex://supplements
+                    GInterface.PrintProductsFormated(optionIndex);
+                    break;
+                case drinksIndex://drinks
+                    GInterface.PrintProductsFormated(optionIndex);
+                    break;
+                case equipmentsIndex://equipment
+                    GInterface.PrintProductsFormated(optionIndex);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+
 
         private void ManageViews()
         {
@@ -319,12 +341,58 @@ namespace Fit4Life.Views
             GInterface.ShoppingCartList = new List<object>();
             GInterface.ShoppingCartProductCounter = new List<int>();
             controller = new Controller();
-            GInterface.SupplementsList = (List<Supplements>)GInterface.GetCategorizedList(0,controller);
-            //GInterface.DrinkssList = (List<Equipment>)GInterface.GetCategorizedList(1, controller);
+            if (((List<Supplements>)controller.GetAllBasedOnCategory(supplementsIndex)).Count <= 1) CreateSampleSupplements();
+            if (((List<Drink>)controller.GetAllBasedOnCategory(drinksIndex)).Count <= 1) CreateSampleDrinks();
+            if (((List<Equipment>)controller.GetAllBasedOnCategory(equipmentsIndex)).Count <= 1) CreateSampleEquipments();
+            GInterface.SupplementsList = (List<Supplements>)GInterface.GetCategorizedList(0, controller);
+            GInterface.DrinksList = (List<Drink>)GInterface.GetCategorizedList(1, controller);
             GInterface.EquipmentsList = (List<Equipment>)GInterface.GetCategorizedList(2, controller);
+            GInterface.CartList = controller.GetCart();
             ObjectSelections.OptionsList = GInterface.GetStringListFromString(optionsString);
             adminOptionIndex = ObjectSelections.OptionsList.Count - 1;
             ManageViews();
         }
+
+        private void CreateSampleSupplements()
+        {
+            Supplements supplement;
+            for (int i = 1; i <= 2; i++)
+            {
+                supplement = new Supplements();
+                supplement.Name = $"supplement{i}";
+                supplement.Brand = $"Brand{i}";
+                supplement.Price = i;
+                supplement.Weight = i.ToString();
+                supplement.Quantity = 0;
+                controller.AddProduct(supplement, supplementsIndex);
+            }
+        }
+        private void CreateSampleDrinks()
+        {
+            Drink drink;
+            for (int i = 1; i <= 2; i++)
+            {
+                drink = new Drink();
+                drink.Name = $"supplement{i}";
+                drink.Mililiters = $"{i * 100}mL";
+                drink.Price = i;
+                drink.Quantity = 0;
+                controller.AddProduct(drink, drinksIndex);
+            }
+        }
+        private void CreateSampleEquipments()
+        {
+            Equipment equipment;
+            for (int i = 1; i <= 2; i++)
+            {
+                equipment = new Equipment();
+                equipment.Name = $"equipment{i}";
+                equipment.Brand = $"Brand{i}";
+                equipment.Price = i;
+                equipment.Quantity = 0;
+                controller.AddProduct(equipment, equipmentsIndex);
+            }
+        }
+
     }
 }
