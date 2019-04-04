@@ -37,6 +37,14 @@ namespace Fit4Life.Controllers
             return null;
         }
 
+        internal List<Cart> GetCart()
+        {
+            using (shopContext = new ShopContext())
+            {
+                return shopContext.Cart.ToList();
+            }
+        }
+
         //create
         internal void AddProduct(object product, int categoryIndex)
         {
@@ -119,6 +127,44 @@ namespace Fit4Life.Controllers
                 switch (categoryIndex)
                 {
                     case 0:
+                        // Supplements supplement = shopContext.Supplements.Find(id) ;
+                        shopContext.Supplements.Remove((Supplements)product);
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        //   Equipment equipment = shopContext.Equipment.Find(id);
+                        //    shopContext.Equipment.Remove(equipment);
+                        break;
+                }
+                shopContext.SaveChanges();
+            }
+        }
+
+        internal void AddToCart(object product, int categoryIndex)
+        {
+            using (shopContext = new ShopContext())
+            {
+                switch (categoryIndex)
+                {
+                    case 0:
+                        Supplements supplement = (Supplements)product;
+                        shopContext.Cart.Add(new Cart(supplement.Name, supplement.Price, 1));
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        Equipment equipment = (Equipment)product;
+                        shopContext.Cart.Add(new Cart(equipment.Name, equipment.Price, 1));
+                        break;
+                }
+                shopContext.SaveChanges();
+            }
+            using (shopContext = new ShopContext())
+            {
+                switch (categoryIndex)
+                {
+                    case 0:
                         Supplements supplement = (Supplements)product;
                         shopContext.Entry(supplement).State = EntityState.Deleted;
                         break;
@@ -133,57 +179,59 @@ namespace Fit4Life.Controllers
             }
         }
 
-        /*public void TransferFromShopToCart(int id, int quantity, int index)
+        internal bool IncreaseQuantityOfCartProduct(object product, int categoryIndex, int quantity = 1)
         {
             using (shopContext = new ShopContext())
             {
-                switch (index)
+                if (shopContext.Cart.Count() > 0)
                 {
-                    case 0:
-                        Supplements supplement = shopContext.Supplements.Find(id);
-                        supplement.Quantity -= quantity;
-
-                        foreach (var item in shopContext.Cart)
-                        {
-                            if (item.Name == supplement.Name)
+                    switch (categoryIndex)
+                    {
+                        case 0:
+                            Supplements supplement = (Supplements)product;
+                            foreach (var productInCart in shopContext.Cart.ToList())
                             {
-                                item.Quantity++;
-                                shopContext.SaveChanges();
-                                break;
+                                if (productInCart.Name == supplement.Name)
+                                {
+                                    productInCart.Quantity += quantity;
+                                    shopContext.SaveChanges();
+                                    break;
+                                }
                             }
-                        }
-
-                        shopContext.Cart.Add(new Cart(supplement.Name, supplement.Price, quantity));
-                        shopContext.SaveChanges();
-                        break;
-
-                    case 1:
-                        break;
-
-                    case 2:
-                        Equipment equipment = shopContext.Equipment.Find(id);
-                        equipment.Quantity -= quantity;
-
-                        foreach (var item in shopContext.Cart)
-                        {
-                            if (item.Name == equipment.Name)
+                            break;
+                        case 1:
+                            break;
+                        case 2:
+                            Equipment equipment = (Equipment)product;
+                            foreach (var productInCart in shopContext.Cart)
                             {
-                                item.Quantity++;
-                                shopContext.SaveChanges();
-                                break;
+                                if (productInCart.Name == equipment.Name)
+                                {
+                                    productInCart.Quantity += quantity;
+                                    shopContext.SaveChanges();
+                                    return true;
+                                }
                             }
-                        }
-
-                        shopContext.Cart.Add(new Cart(equipment.Name, equipment.Price, quantity));
-                        shopContext.SaveChanges();
-                        break;
-
-
-                    default:
-                        break;
+                            break;
+                    }
                 }
+                return false;
+
             }
-        }*/
+        }
+
+        public decimal GetThePriceOfAllProductsInCart()
+        {
+            using(shopContext = new ShopContext())
+            {
+                decimal price = 0;
+                foreach (var product in shopContext.Cart.ToList())
+                {
+                    price += product.Price * product.Quantity;
+                }
+                return price;
+            }
+        }
         /*private Display display;
         private DataManagement dataManagement;
         internal void Start()

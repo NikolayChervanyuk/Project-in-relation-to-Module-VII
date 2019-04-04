@@ -19,5 +19,10 @@ namespace Fit4Life.Data.Models
             this.Price = price;
             this.Quantity = quantity;
         }
+
+        public Cart()
+        {
+
+        }
     }
 }
