@@ -21,10 +21,10 @@ namespace Fit4Life.Data
         public DbSet<Cart> Cart { get; set; }
         public DbSet<Drink> Drinks { get; set; }
 
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        /*protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
 
-        }
+        }*/
     }
 
 }

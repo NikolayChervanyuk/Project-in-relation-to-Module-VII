@@ -14,7 +14,6 @@ namespace Fit4Life.Controllers
     internal class Controller
     {
         private ShopContext shopContext { get; set; }
-
         //read
         internal object GetAllBasedOnCategory(int categoryIndex)
         {
@@ -119,7 +118,6 @@ namespace Fit4Life.Controllers
                 shopContext.SaveChanges();
             }*/
         }
-
         //update
         internal void DecreaseQuantityOf(object product, int quantity = 1)
         {
@@ -233,7 +231,6 @@ namespace Fit4Life.Controllers
                 return false;
             }
         }
-
         //delete
         internal void DeleteProduct(object product, int categoryIndex)
         {

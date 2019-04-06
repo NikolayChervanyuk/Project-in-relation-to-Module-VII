@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -77,12 +78,10 @@ namespace Fit4Life.Views
                 {
 
                     admin.PrintAdminPageHeadder();
-                    //System.Threading.Thread.Sleep(1000);
                     pickedAction = admin.SelectAction();
                     admin.TakeAction(pickedAction);
                 } while (pickedAction != -1);
             }
-            //OpenHomeView();
             return;
         }
         /// <summary>
@@ -90,14 +89,12 @@ namespace Fit4Life.Views
         /// </summary>
         private int SelectOption(int optionIndex = 0)
         {
-            //int pickedOptionIndex = -1;
             //the following code enables option selection with arrow keys and enter
             int optIndex = 0;
             int optionsCount = ObjectSelections.OptionsList.Count;
             Console.CursorVisible = false;
             ObjectSelections.SelectCurrentOptionAt(optionIndex);
             ConsoleKeyInfo key = Console.ReadKey(true);
-            //Loop, while option is not selected
             while (key.Key != ConsoleKey.Enter)
             {
                 switch (key.Key)
@@ -148,6 +145,10 @@ namespace Fit4Life.Views
             Console.CursorVisible = true;
             return pickedOptionIndex = optIndex;
         }
+        /// <summary>
+        /// Enables option selection
+        /// </summary>
+        /// <param name="optionIndex"></param>
         private void SelectProduct(int optionIndex)
         {
             int productIndex = 0;
@@ -180,7 +181,6 @@ namespace Fit4Life.Views
                         dynamic categorizedList = GInterface.GetCategorizedList(optionIndex, controller);
                         string productType = categorizedList[productIndex].GetType().Name.ToString();
                         object currentProduct = categorizedList[productIndex];
-                        //int quantity = GInterface.ShoppingCartProductCounter[GInterface.IndexOfProductInCart(currentProduct, optionIndex)];
                         switch (currentProduct.GetType().Name.ToString())
                         {
                             case "Supplements":
@@ -274,7 +274,6 @@ namespace Fit4Life.Views
                         {
                             GInterface.ShowCart();
                             Console.CursorLeft = 0;
-                            //Console.Write(' ');
                             key = Console.ReadKey(true);
 
                             /*
@@ -292,10 +291,12 @@ namespace Fit4Life.Views
                 key = Console.ReadKey(true);
             }
             Console.Clear();
-            OpenHomeView();
+            return;
         }
 
-        //Displays the products view according to optionIndex
+        /// <summary>
+        /// Displays the products view according to optionIndex
+        /// </summary>
         private void PrintProductsBasedOnCategory(int optionIndex)
         {
             switch (optionIndex)
@@ -313,10 +314,7 @@ namespace Fit4Life.Views
                     break;
             }
         }
-
-
-
-        private void ManageViews()
+        private void ViewsManager()
         {
             do
             {
@@ -324,7 +322,7 @@ namespace Fit4Life.Views
                 {
                     OpenHomeView();
                 }
-                else if (pickedOptionIndex == 3)
+                else if (pickedOptionIndex == adminIndex)
                 {
                     OpenAdminView();
                     pickedOptionIndex = -1;
@@ -332,12 +330,13 @@ namespace Fit4Life.Views
                 else
                 {
                     OpenProductsView(pickedOptionIndex);
+                    pickedOptionIndex = -1;
                 }
             } while (true);
         }
         public Display()
         {
-            Console.WriteLine("Initializing, please wait...");
+            PrintRandomLoadingText();
             GInterface.ShoppingCartList = new List<object>();
             GInterface.ShoppingCartProductCounter = new List<int>();
             controller = new Controller();
@@ -350,9 +349,17 @@ namespace Fit4Life.Views
             GInterface.CartList = controller.GetCart();
             ObjectSelections.OptionsList = GInterface.GetStringListFromString(optionsString);
             adminOptionIndex = ObjectSelections.OptionsList.Count - 1;
-            ManageViews();
+            ViewsManager();
         }
-
+        private void PrintRandomLoadingText()
+        {
+            string randomText = "Loading your gainzzz;Abs on the way;Loading the magic pills;" +
+                "Pumping your muscles;Burning ze fett;Yo Sexyyy ^o^;Unleashing the GAINZ";
+            List<string> randomLoadingMsgs = GInterface.GetStringListFromString(randomText);
+            Random randomIndex = new Random();
+            Console.Write(randomLoadingMsgs[randomIndex.Next(0, randomLoadingMsgs.Count - 1)]);
+            Console.WriteLine("...");
+        }
         private void CreateSampleSupplements()
         {
             Supplements supplement;
@@ -373,7 +380,7 @@ namespace Fit4Life.Views
             for (int i = 1; i <= 2; i++)
             {
                 drink = new Drink();
-                drink.Name = $"supplement{i}";
+                drink.Name = $"drink{i}";
                 drink.Mililiters = $"{i * 100}mL";
                 drink.Price = i;
                 drink.Quantity = 0;

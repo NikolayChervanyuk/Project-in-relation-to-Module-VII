@@ -11,9 +11,11 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 namespace Fit4Life.Extentions
 {
+    /// <summary>
+    /// Helper class for Display.
+    /// </summary>
     internal static class GInterface
     {
-
         //internal static List<Type> ProductsList { get; set; }
         internal static List<object> ShoppingCartList { get; set; }
         internal static List<int> ShoppingCartProductCounter { get; set; }
@@ -33,6 +35,9 @@ namespace Fit4Life.Extentions
         private static double heightCoeff = (double)screenHeight / screenWidth;
         internal static int[] mainPageWindowSize = { 50, 60 };
         internal static int[] productPageWindowSize = { 60, 80 };
+        /// <summary>
+        /// Sets the console's window size. Adaptable to different resolutions.
+        /// </summary>
         internal static void SetWindowSize(int windowWidth, int windowHeight)
         {
             Console.SetWindowSize((int)(windowWidth * widthCoeff),
@@ -92,6 +97,9 @@ namespace Fit4Life.Extentions
             return OptionsList;
         }
 
+        /// <summary>
+        /// Gets the options from optionsList and prints them.
+        /// </summary>
         internal static void PrintOptions(List<string> optionsList)
         {
             for (int i = 0; i < optionsList.Count(); i++)
@@ -128,7 +136,11 @@ namespace Fit4Life.Extentions
             dynamic productsList_Obj = controller.GetAllBasedOnCategory(optionIndex);
             return ReturnDefinedTypeList(optionIndex, productsList_Obj);
         }
-        //yess
+        /// <summary>
+        /// Returns  a list, fetched from the database from type, defined by optionIndex.
+        /// </summary>
+        /// <param name="optionIndex">Category of the list</param>
+        /// <param name="productList_Undefined">Object, without defined type</param>
         private static object ReturnDefinedTypeList(int optionIndex, dynamic productList_Undefined)
         {
             switch (optionIndex)
@@ -147,7 +159,6 @@ namespace Fit4Life.Extentions
         /// <summary>
         /// Prints all products fetched from the database in a tablelike fashion
         /// </summary>
-        /// //yes
         internal static void PrintProductsFormated(int categoryIndex)
         {
             Console.SetCursorPosition(0, ObjectSelections.TopOffset);
@@ -178,7 +189,11 @@ namespace Fit4Life.Extentions
                     break;
             }
         }
-        //yess
+        
+        /// <summary>
+        /// Gets the index of the element in ShoppingCartList where product's id equals element's id.
+        /// </summary>
+        /// <param name="product">Product to be searched for.</param>
         internal static int IndexOfProductInCart(object product, int categoryIndex)
         {
             switch (categoryIndex)
@@ -229,6 +244,9 @@ namespace Fit4Life.Extentions
             return int.MaxValue;
         }
 
+        /// <summary>
+        /// Prints out of stock message in red text.
+        /// </summary>
         internal static void ShowOutOfStockMsg(int productIndex)
         {
             Console.BackgroundColor = ConsoleColor.Red;
@@ -297,6 +315,9 @@ namespace Fit4Life.Extentions
             return flag;
         }
 
+        /// <summary>
+        /// Prints the cart in raw form
+        /// </summary>
         internal static void ShowCart()
         {
             Console.Clear();

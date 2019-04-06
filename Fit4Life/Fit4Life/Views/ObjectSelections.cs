@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace Fit4Life.Views
 {
+    /// <summary>
+    /// Containing methods for selecting options and products and printing them.
+    /// </summary>
     internal static class ObjectSelections
     {
         internal static List<string> OptionsList { get; set; }
