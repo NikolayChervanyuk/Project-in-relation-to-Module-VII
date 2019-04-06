@@ -11,7 +11,7 @@ namespace Fit4Life.Views
 {
     internal static class Shapes
     {
-        private const int supplementsIndex = Display.supplementsIndex;
+        private const int SupplementIndex = Display.SupplementIndex;
         private const int drinksIndex = Display.drinksIndex;
         private const int equipmentsIndex = Display.equipmentsIndex;
 
@@ -21,8 +21,8 @@ namespace Fit4Life.Views
             int[] quantityFieldPos = new int[2];
             switch (categoryIndex)
             {
-                case supplementsIndex:
-                    Supplements supplement = (Supplements)product;
+                case SupplementIndex:
+                    Supplement supplement = (Supplement)product;
                     Console.Write($"Supplement: {supplement.Name} / {supplement.Brand}");
                     GInterface.ShiftText(5);
                     Console.Write($"Price: {supplement.Price:f2}");
@@ -83,8 +83,8 @@ namespace Fit4Life.Views
             Console.CursorTop++;
             switch (categoryIndex)
             {
-                case supplementsIndex:
-                    var supplement = (Supplements)product;
+                case SupplementIndex:
+                    var supplement = (Supplement)product;
                     //int[] quantityFieldPos = { Console.CursorLeft, Console.CursorTop }; //Beginning of the quanitity number field
                     Console.Write($"Expenses:{supplement.Price:f2}bgn x {quantityToAdd}");
                     Console.CursorTop++;

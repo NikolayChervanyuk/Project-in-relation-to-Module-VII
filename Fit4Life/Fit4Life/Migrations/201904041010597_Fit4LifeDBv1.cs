@@ -43,7 +43,7 @@ namespace Fit4Life.Migrations
                 .PrimaryKey(t => t.Id);
             
             CreateTable(
-                "dbo.Supplements",
+                "dbo.Supplement",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
@@ -59,7 +59,7 @@ namespace Fit4Life.Migrations
         
         public override void Down()
         {
-            DropTable("dbo.Supplements");
+            DropTable("dbo.Supplement");
             DropTable("dbo.Equipments");
             DropTable("dbo.Drinks");
             DropTable("dbo.Carts");

@@ -16,9 +16,9 @@ namespace Fit4Life.Views
         Controller controller;
         internal static int pickedOptionIndex = -1;
         internal static decimal shoppingCartTotal = 0;
-        private static string optionsString = "Supplements;Drinks;Equipment;Admin login";
+        private static string optionsString = "Supplement;Drinks;Equipment;Admin login";
         private static int adminOptionIndex = -1;
-        internal const int supplementsIndex = 0;
+        internal const int SupplementIndex = 0;
         internal const int drinksIndex = 1;
         internal const int equipmentsIndex = 2;
         private const int adminIndex = 3;
@@ -46,8 +46,8 @@ namespace Fit4Life.Views
                 var productsList = GInterface.GetCategorizedList(optionIndex, controller);
                 switch (optionIndex)
                 {
-                    case supplementsIndex:
-                        GInterface.SupplementsList = (List<Supplements>)productsList;
+                    case SupplementIndex:
+                        GInterface.SupplementList = (List<Supplement>)productsList;
                         break;
                     case drinksIndex:
                         GInterface.DrinksList = (List<Drink>)productsList;
@@ -183,9 +183,9 @@ namespace Fit4Life.Views
                         object currentProduct = categorizedList[productIndex];
                         switch (currentProduct.GetType().Name.ToString())
                         {
-                            case "Supplements":
+                            case "Supplement":
                                 categoryIndex = 0;
-                                Supplements supplement = (Supplements)currentProduct;
+                                Supplement supplement = (Supplement)currentProduct;
                                 if (supplement.Quantity <= 0)
                                 {
                                     isOutOfStock = true;
@@ -197,7 +197,7 @@ namespace Fit4Life.Views
                                 {
                                     controller.DecreaseQuantityOf(currentProduct, 1);
                                     //controller.AddToCart(supplement, categoryIndex);
-                                    GInterface.SupplementsList = (List<Supplements>)controller.GetAllBasedOnCategory(supplementsIndex);
+                                    GInterface.SupplementList = (List<Supplement>)controller.GetAllBasedOnCategory(SupplementIndex);
                                     ObjectSelections.SelectCurrentProductAt(productIndex, optionIndex);
                                     shoppingCartTotal += supplement.Price;
                                     GInterface.RefreshCartTotal(shoppingCartTotal);
@@ -301,7 +301,7 @@ namespace Fit4Life.Views
         {
             switch (optionIndex)
             {
-                case supplementsIndex://supplements
+                case SupplementIndex://Supplement
                     GInterface.PrintProductsFormated(optionIndex);
                     break;
                 case drinksIndex://drinks
@@ -340,10 +340,10 @@ namespace Fit4Life.Views
             GInterface.ShoppingCartList = new List<object>();
             GInterface.ShoppingCartProductCounter = new List<int>();
             controller = new Controller();
-            if (((List<Supplements>)controller.GetAllBasedOnCategory(supplementsIndex)).Count <= 1) CreateSampleSupplements();
+            if (((List<Supplement>)controller.GetAllBasedOnCategory(SupplementIndex)).Count <= 1) CreateSampleSupplement();
             if (((List<Drink>)controller.GetAllBasedOnCategory(drinksIndex)).Count <= 1) CreateSampleDrinks();
             if (((List<Equipment>)controller.GetAllBasedOnCategory(equipmentsIndex)).Count <= 1) CreateSampleEquipments();
-            GInterface.SupplementsList = (List<Supplements>)GInterface.GetCategorizedList(0, controller);
+            GInterface.SupplementList = (List<Supplement>)GInterface.GetCategorizedList(0, controller);
             GInterface.DrinksList = (List<Drink>)GInterface.GetCategorizedList(1, controller);
             GInterface.EquipmentsList = (List<Equipment>)GInterface.GetCategorizedList(2, controller);
             GInterface.CartList = controller.GetCart();
@@ -360,18 +360,18 @@ namespace Fit4Life.Views
             Console.Write(randomLoadingMsgs[randomIndex.Next(0, randomLoadingMsgs.Count - 1)]);
             Console.WriteLine("...");
         }
-        private void CreateSampleSupplements()
+        private void CreateSampleSupplement()
         {
-            Supplements supplement;
+            Supplement supplement;
             for (int i = 1; i <= 2; i++)
             {
-                supplement = new Supplements();
+                supplement = new Supplement();
                 supplement.Name = $"supplement{i}";
                 supplement.Brand = $"Brand{i}";
                 supplement.Price = i;
                 supplement.Weight = i.ToString();
                 supplement.Quantity = 0;
-                controller.AddProduct(supplement, supplementsIndex);
+                controller.AddProduct(supplement, SupplementIndex);
             }
         }
         private void CreateSampleDrinks()

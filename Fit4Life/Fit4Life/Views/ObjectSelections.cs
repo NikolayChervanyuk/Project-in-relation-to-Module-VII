@@ -18,7 +18,7 @@ namespace Fit4Life.Views
         internal static List<string> OptionsList { get; set; }
         internal static int TopOffset;
         internal static int LeftOffset;
-        private const int supplementsIndex = Display.supplementsIndex;
+        private const int SupplementIndex = Display.SupplementIndex;
         private const int drinksIndex = Display.drinksIndex;
         private const int equipmentsIndex = Display.equipmentsIndex;
 
@@ -66,8 +66,8 @@ namespace Fit4Life.Views
             Console.Write($" {productIndex + 1}.");
             switch (categoryIndex)
             {
-                case supplementsIndex:
-                    PrintSupplement(GInterface.SupplementsList[productIndex]);
+                case SupplementIndex:
+                    PrintSupplement(GInterface.SupplementList[productIndex]);
                     break;
                 case drinksIndex:
                     PrintDrink(GInterface.DrinksList[productIndex]);
@@ -85,8 +85,8 @@ namespace Fit4Life.Views
         {
             switch (categoryIndex)
             {
-                case supplementsIndex:
-                    Supplements supplement = (Supplements)product;
+                case SupplementIndex:
+                    Supplement supplement = (Supplement)product;
                     PrintSupplement(supplement, printForCart);
                     break;
                 case drinksIndex:
@@ -100,7 +100,7 @@ namespace Fit4Life.Views
             }
         }
 
-        internal static void PrintSupplement(Supplements supplement, bool printForCart = false)
+        internal static void PrintSupplement(Supplement supplement, bool printForCart = false)
         {
             int offset = 0;
             Console.Write($" {supplement.Name}");

@@ -9,7 +9,7 @@ using Fit4Life.Data.Models;
 
 namespace Fit4Life.Models
 {
-    class Supplements
+    class Supplement
     {
         public int Id { get; set; }
         public string Name { get; set; }

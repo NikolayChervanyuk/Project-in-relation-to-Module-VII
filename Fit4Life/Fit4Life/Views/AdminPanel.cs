@@ -19,7 +19,7 @@ namespace Fit4Life.Views
         private static string actions;
         int pickedActionIndex = -1;
         internal static string adminPassword;
-        private const int supplementsIndex = Display.supplementsIndex;
+        private const int SupplementIndex = Display.SupplementIndex;
         private const int drinksIndex = Display.drinksIndex;
         private const int equipmentsIndex = Display.equipmentsIndex;
         /// <summary>
@@ -150,8 +150,8 @@ namespace Fit4Life.Views
                 GInterface.SetWindowSize(GInterface.productPageWindowSize[0], GInterface.productPageWindowSize[1]);
                 switch (pickedActionIndex)
                 {
-                    case supplementsIndex://supplement
-                        PrintRestockPageHeadder(GInterface.SupplementsList[0].GetType().Name.ToString(), GInterface.SupplementsList.Count);
+                    case SupplementIndex://supplement
+                        PrintRestockPageHeadder(GInterface.SupplementList[0].GetType().Name.ToString(), GInterface.SupplementList.Count);
                         SelectSupplementForRestock();
                         break;
                     case drinksIndex://drink
@@ -170,7 +170,7 @@ namespace Fit4Life.Views
                 switch (pickedActionIndex)
                 {
                     case 3://supplement
-                        Supplements supplement = EnterNewSupplement();
+                        Supplement supplement = EnterNewSupplement();
                         if (supplement == null)
                         {
                             DisplayInfoMsg("Supplement discarded");
@@ -180,7 +180,7 @@ namespace Fit4Life.Views
                             Console.Clear();
                             Console.WriteLine("Please wait...");
                             controller.AddProduct(supplement, 0);
-                            GInterface.SupplementsList = GInterface.GetCategorizedList(categoryIndex, controller);
+                            GInterface.SupplementList = GInterface.GetCategorizedList(categoryIndex, controller);
                             DisplayInfoMsg("Supplement created successfully!", 1800);
                         }
                         break;
@@ -217,7 +217,7 @@ namespace Fit4Life.Views
                 switch (pickedActionIndex)
                 {
                     case 6:
-                        PrintDeletionPageHeadder(GInterface.SupplementsList[0].GetType().Name.ToString(), GInterface.SupplementsList.Count);
+                        PrintDeletionPageHeadder(GInterface.SupplementList[0].GetType().Name.ToString(), GInterface.SupplementList.Count);
                         SelectSupplementForDeletion();
                         break;
                     case 7:
@@ -257,7 +257,7 @@ namespace Fit4Life.Views
             return false;
         }
         /// <summary>
-        /// Prints the supplements and enables their selection. 
+        /// Prints the Supplement and enables their selection. 
         /// If enter is pressed on the selected supplement, restock process is initiated for it.
         /// </summary>
         private void SelectSupplementForRestock()
@@ -268,7 +268,7 @@ namespace Fit4Life.Views
             GInterface.PrintProductsFormated(categoryIndex);
             ConsoleKeyInfo key = new ConsoleKeyInfo();
             int supplementIndex = 0;
-            int listLenght = GInterface.SupplementsList.Count;
+            int listLenght = GInterface.SupplementList.Count;
             ObjectSelections.SelectCurrentProductAt(supplementIndex, categoryIndex);
             //Console.CursorVisible = false;
             do
@@ -293,7 +293,7 @@ namespace Fit4Life.Views
                         ObjectSelections.SelectCurrentProductAt(--supplementIndex, categoryIndex);
                         break;
                     case ConsoleKey.Enter:
-                        RestockSelectedProduct(GInterface.SupplementsList[supplementIndex], supplementIndex, categoryIndex);
+                        RestockSelectedProduct(GInterface.SupplementList[supplementIndex], supplementIndex, categoryIndex);
                         ObjectSelections.SelectCurrentProductAt(supplementIndex, categoryIndex);
                         break;
                 }
@@ -402,8 +402,8 @@ namespace Fit4Life.Views
             int quantityToAdd;
             switch (categoryIndex)
             {
-                case supplementsIndex:
-                    Supplements supplement = (Supplements)product;
+                case SupplementIndex:
+                    Supplement supplement = (Supplement)product;
                     Shapes.WriteBottomRestockInfo(product, categoryIndex);
                     quantityToAdd = int.Parse(NumberInput(1, maxQuantityValue, "int", false, "", 8).ToString());
                     if (quantityToAdd <= 0)
@@ -418,12 +418,12 @@ namespace Fit4Life.Views
                         if (IsConfirmedRestockAction())
                         {
                             controller.IncreaseQuantityOf(supplement, categoryIndex, quantityToAdd);
-                            GInterface.SupplementsList = (List<Supplements>)GInterface.GetCategorizedList(categoryIndex, controller);
+                            GInterface.SupplementList = (List<Supplement>)GInterface.GetCategorizedList(categoryIndex, controller);
                             DisplayInfoMsg("Supplement restocked successfully!", 1500);
                         }
                         else DisplayInfoMsg("Restock action cancelled", 1200);
                     }
-                    PrintRestockPageHeadder(supplement.GetType().Name.ToString(), GInterface.SupplementsList.Count);
+                    PrintRestockPageHeadder(supplement.GetType().Name.ToString(), GInterface.SupplementList.Count);
 
                     break;
                 case drinksIndex:
@@ -469,7 +469,7 @@ namespace Fit4Life.Views
                         }
                         else DisplayInfoMsg("Restock action cancelled", 1200);
                     }
-                    PrintRestockPageHeadder(equipment.GetType().Name.ToString(), GInterface.SupplementsList.Count);
+                    PrintRestockPageHeadder(equipment.GetType().Name.ToString(), GInterface.SupplementList.Count);
                     break;
             }
             GInterface.PrintProductsFormated(categoryIndex);
@@ -483,9 +483,9 @@ namespace Fit4Life.Views
         /// Creates new supplement by entering the properties of supplement.
         /// If the method is terminated via pressing the Escape key,then the supplement equals null.
         /// </summary>
-        private Supplements EnterNewSupplement()
+        private Supplement EnterNewSupplement()
         {
-            Supplements supplement = new Supplements();
+            Supplement supplement = new Supplement();
             int minNameLenght = 1;
             int maxNameLenght = 28;
             int minBrandLenght = 1;
@@ -591,7 +591,7 @@ namespace Fit4Life.Views
         }
 
         /// <summary>
-        /// Prints the supplements and enables their selection. 
+        /// Prints the Supplement and enables their selection. 
         /// If enter is pressed on the selected supplement, deletion process is initiated for it.
         /// </summary>
         private void SelectSupplementForDeletion()
@@ -602,7 +602,7 @@ namespace Fit4Life.Views
             GInterface.PrintProductsFormated(categoryIndex);
             ConsoleKeyInfo key = new ConsoleKeyInfo();
             int supplementIndex = 0;
-            int listLenght = GInterface.SupplementsList.Count;
+            int listLenght = GInterface.SupplementList.Count;
             ObjectSelections.SelectCurrentProductAt(supplementIndex, categoryIndex);
             Console.CursorVisible = false;
             do
@@ -633,11 +633,11 @@ namespace Fit4Life.Views
                         {
                             Console.Clear();
                             Console.WriteLine("Please wait...");
-                            controller.DeleteProduct(GInterface.SupplementsList[supplementIndex], categoryIndex);
+                            controller.DeleteProduct(GInterface.SupplementList[supplementIndex], categoryIndex);
                             DisplayInfoMsg("Deletion completed successfully!", 2200);
-                            GInterface.SupplementsList = GInterface.GetCategorizedList(categoryIndex, controller);
+                            GInterface.SupplementList = GInterface.GetCategorizedList(categoryIndex, controller);
                             if (supplementIndex >= --listLenght) supplementIndex--;
-                            PrintDeletionPageHeadder(GInterface.SupplementsList[0].GetType().Name.ToString(), listLenght);
+                            PrintDeletionPageHeadder(GInterface.SupplementList[0].GetType().Name.ToString(), listLenght);
                             GInterface.PrintProductsFormated(categoryIndex);
                         }
                         ObjectSelections.SelectCurrentProductAt(supplementIndex, categoryIndex);
@@ -774,8 +774,8 @@ namespace Fit4Life.Views
             int topOffset = ObjectSelections.TopOffset + 2;
             switch (categoryIndex)
             {
-                case supplementsIndex:
-                    topOffset += GInterface.SupplementsList.Count;
+                case SupplementIndex:
+                    topOffset += GInterface.SupplementList.Count;
                     break;
                 case drinksIndex:
                     topOffset += GInterface.DrinksList.Count;

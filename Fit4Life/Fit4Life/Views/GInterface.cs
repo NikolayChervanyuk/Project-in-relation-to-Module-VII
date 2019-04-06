@@ -19,12 +19,12 @@ namespace Fit4Life.Extentions
         //internal static List<Type> ProductsList { get; set; }
         internal static List<object> ShoppingCartList { get; set; }
         internal static List<int> ShoppingCartProductCounter { get; set; }
-        internal static List<Supplements> SupplementsList { get; set; }
+        internal static List<Supplement> SupplementList { get; set; }
         internal static List<Drink> DrinksList { get; set; }
         internal static List<Equipment> EquipmentsList { get; set; }
         internal static List<Cart> CartList { get; set; }
         internal static int indexerOfProductsCounter = 0;
-        private const int supplementsIndex = Display.supplementsIndex;
+        private const int SupplementIndex = Display.SupplementIndex;
         private const int drinksIndex = Display.drinksIndex;
         private const int equipmentsIndex = Display.equipmentsIndex;
 
@@ -117,8 +117,8 @@ namespace Fit4Life.Extentions
         {
             switch (categoryIndex)
             {
-                case supplementsIndex:
-                    return SupplementsList.Count;
+                case SupplementIndex:
+                    return SupplementList.Count;
                 case drinksIndex:
                     return DrinksList.Count;
                 case equipmentsIndex:
@@ -145,8 +145,8 @@ namespace Fit4Life.Extentions
         {
             switch (optionIndex)
             {
-                case supplementsIndex:
-                    return new List<Supplements>(productList_Undefined);
+                case SupplementIndex:
+                    return new List<Supplement>(productList_Undefined);
                 case drinksIndex:
                     return new List<Drink>(productList_Undefined);
                 case equipmentsIndex:
@@ -164,8 +164,8 @@ namespace Fit4Life.Extentions
             Console.SetCursorPosition(0, ObjectSelections.TopOffset);
             switch (categoryIndex)
             {
-                case supplementsIndex://supplements
-                    for (int i = 0; i < SupplementsList.Count; i++)
+                case SupplementIndex://Supplement
+                    for (int i = 0; i < SupplementList.Count; i++)
                     {
                         ObjectSelections.PrintProductByIndex(i, categoryIndex);
                         Console.WriteLine();
@@ -198,13 +198,13 @@ namespace Fit4Life.Extentions
         {
             switch (categoryIndex)
             {
-                case supplementsIndex:
-                    Supplements supplement = (Supplements)product;
+                case SupplementIndex:
+                    Supplement supplement = (Supplement)product;
                     for (int i = 0; i < ShoppingCartList.Count; i++)
                     {
                         try
                         {
-                            if (((Supplements)ShoppingCartList[i]).Id == supplement.Id) return i;
+                            if (((Supplement)ShoppingCartList[i]).Id == supplement.Id) return i;
                         }
                         catch (Exception)
                         {
@@ -272,11 +272,11 @@ namespace Fit4Life.Extentions
                 //the switch statement is used only to attempt casting so to make the comparisons
                 switch (productType)
                 {
-                    case "Supplements":
+                    case "Supplement":
                         if (shoppingCartProduct.GetType().Name.ToString() == productType)
                         {
-                            var supplement = (Supplements)shoppingCartProduct;
-                            var supplementForComparison = (Supplements)product;
+                            var supplement = (Supplement)shoppingCartProduct;
+                            var supplementForComparison = (Supplement)product;
                             if (supplement.Id == supplementForComparison.Id)
                             {
                                 indexerOfProductsCounter = index;
@@ -333,9 +333,9 @@ namespace Fit4Life.Extentions
                     Console.Write($" {index}.");
                     switch (productInCart.GetType().Name.ToString())
                     {
-                        case "Supplements":
+                        case "Supplement":
 
-                            ObjectSelections.PrintProduct(productInCart, supplementsIndex, true);
+                            ObjectSelections.PrintProduct(productInCart, SupplementIndex, true);
                             break;
                         case "Drink":
                             ObjectSelections.PrintProduct(productInCart, drinksIndex, true);
@@ -374,8 +374,8 @@ namespace Fit4Life.Extentions
         {
             switch (categoryIndex)
             {
-                case supplementsIndex:
-                    return (Supplements)product;
+                case SupplementIndex:
+                    return (Supplement)product;
                 case drinksIndex:
                     return (Drink)product;
                 case equipmentsIndex:

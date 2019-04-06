@@ -27,7 +27,7 @@ namespace Fit4Life.Controllers
             switch (index)
             {
                 case 0:
-                    return shopContext.Supplements.ToList();
+                    return shopContext.Supplement.ToList();
                 case 1:
                     return shopContext.Drinks.ToList();
                 case 2:
@@ -62,8 +62,8 @@ namespace Fit4Life.Controllers
                 switch (categoryIndex)
                 {
                     case 0:
-                        Supplements supplement = (Supplements)product;
-                        shopContext.Supplements.Add(supplement);
+                        Supplement supplement = (Supplement)product;
+                        shopContext.Supplement.Add(supplement);
                         break;
                     case 1:
                         Drink drink = (Drink)product;
@@ -84,7 +84,7 @@ namespace Fit4Life.Controllers
                 switch (categoryIndex)
                 {
                     case 0:
-                        Supplements supplement = (Supplements)product;
+                        Supplement supplement = (Supplement)product;
                         shopContext.Cart.Add(new Cart(supplement.Name, supplement.Price, 1));
                         break;
                     case 1:
@@ -103,11 +103,11 @@ namespace Fit4Life.Controllers
                 switch (categoryIndex)
                 {
                     case 0:
-                        Supplements supplement = (Supplements)product;
+                        Supplement supplement = (Supplement)product;
                         shopContext.Entry(supplement).State = EntityState.Deleted;
                         break;
                     case 1:
-                        Supplements supplement = (Supplements)product;
+                        Supplement supplement = (Supplement)product;
                         shopContext.Entry(supplement).State = EntityState.Deleted;
                         break;
                     case 2:
@@ -126,9 +126,9 @@ namespace Fit4Life.Controllers
                 dynamic updater;
                 switch (product.GetType().Name.ToString())
                 {
-                    case "Supplements":
-                        Supplements supplement = (Supplements)product;
-                        updater = shopContext.Supplements.FirstOrDefault(s => s.Id == supplement.Id);
+                    case "Supplement":
+                        Supplement supplement = (Supplement)product;
+                        updater = shopContext.Supplement.FirstOrDefault(s => s.Id == supplement.Id);
                         updater.Quantity -= quantity;
                         break;
                     case "Drink":
@@ -152,8 +152,8 @@ namespace Fit4Life.Controllers
                 switch (categoryIndex)
                 {
                     case 0:
-                        Supplements supplement = (Supplements)product;
-                        Supplements supplementToReplace = shopContext.Supplements.Find(supplement.Id);
+                        Supplement supplement = (Supplement)product;
+                        Supplement supplementToReplace = shopContext.Supplement.Find(supplement.Id);
                         supplement.Quantity += quantity;
                         shopContext.Entry(supplementToReplace).Entity.Quantity = supplement.Quantity;
                         break;
@@ -187,7 +187,7 @@ namespace Fit4Life.Controllers
                 switch (categoryIndex)
                 {
                     case 0:
-                        Supplements supplement = (Supplements)product;
+                        Supplement supplement = (Supplement)product;
                         foreach (var productInCart in shopContext.Cart.ToList())
                         {
                             if (productInCart.Name == supplement.Name)
@@ -239,8 +239,8 @@ namespace Fit4Life.Controllers
                 switch (categoryIndex)
                 {
                     case 0:
-                        shopContext.Supplements.Attach((Supplements)product);
-                        shopContext.Supplements.Remove((Supplements)product);
+                        shopContext.Supplement.Attach((Supplement)product);
+                        shopContext.Supplement.Remove((Supplement)product);
                         break;
                     case 1:
                         shopContext.Drinks.Attach((Drink)product);
